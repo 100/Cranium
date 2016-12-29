@@ -12,6 +12,8 @@ Matrix* createMatrix(int rows, int cols, double** data);
 
 Matrix* add(Matrix* A, Matrix* b);
 
+Matrix* addToEachRow(Matrix* A, Matrix* B);
+
 Matrix* multiply(Matrix* A, Matrix* B);
 
 // element-wise multiplcation

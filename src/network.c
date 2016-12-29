@@ -1,5 +1,4 @@
 #include "network.h"
-#include <stdio.h>
 
 Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numClasses, void (*outputActivation)(Matrix*)){
     assert(numFeatures > 0 && numHiddenLayers >= 0 && numClasses > 0);
@@ -33,14 +32,14 @@ Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, v
 }
 
 void forwardPass(Network* network, Matrix* input){
-    assert(input->rows == 1 && input->cols == network->layers[0]->input->cols);
+    assert(input->cols == network->layers[0]->input->cols);
     destroyMatrix(network->layers[0]->input);
     network->layers[0]->input = copy(input);
     int i;
     Matrix* tmp,* tmp2;
     for (i = 0; i < network->numConnections; i++){
         tmp = multiply(network->layers[i]->input, network->connections[i]->weights);
-        tmp2 = add(tmp, network->connections[i]->bias);
+        tmp2 = addToEachRow(tmp, network->connections[i]->bias);
         destroyMatrix(network->connections[i]->to->input);
         network->connections[i]->to->input = tmp2;
         destroyMatrix(tmp);
@@ -48,16 +47,20 @@ void forwardPass(Network* network, Matrix* input){
     }
 }
 
-int predict(Network* network){
-    int i;
-    int max = 0;
+int* predict(Network* network){
+    int i, j, max;
     Layer* outputLayer = network->layers[network->numLayers - 2];
-    for (i = 1; i < outputLayer->size; i++){
-        if (outputLayer->input->data[0][i] > outputLayer->input->data[0][max]){
-            max = i;
+    int* predictions = (int*)malloc(sizeof(int) * outputLayer->input->rows);
+    for (i = 0; i < outputLayer->input->rows; i++){
+        max = 0;
+        for (j = 1; j < outputLayer->size; j++){
+            if (outputLayer->input->data[0][j] > outputLayer->input->data[0][max]){
+                max = j;
+            }
         }
+        predictions[i] = max;
     }
-    return max;
+    return predictions;
 }
 
 void destroyNetwork(Network* network){

@@ -26,6 +26,24 @@ Matrix* add(Matrix* A, Matrix* B){
     return result;
 }
 
+// add B to each row of A
+Matrix* addToEachRow(Matrix* A, Matrix* B){
+    assert(A->cols == B->cols && B->rows == 1);
+    double** data = (double**)malloc(sizeof(double*) * A->rows);
+    int k;
+    for (k = 0; k < A->rows; k++){
+        data[k] = (double*)malloc(sizeof(double) * A->cols);
+    }
+    Matrix* result = createMatrix(A->rows, A->cols, data);
+    int i, j;
+    for (i = 0; i < A->rows; i++){
+        for (j = 0; j < A->cols; j++){
+            data[i][j] = A->data[i][j] + B->data[0][j];
+        }
+    }
+    return result;
+}
+
 Matrix* multiply(Matrix* A, Matrix* B){
     assert(A->cols == B->rows);
     double** data = (double**)malloc(sizeof(double*) * A->rows);

@@ -21,8 +21,9 @@ Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, v
 // input should be a row vector representing one example
 void forwardPass(Network* network, Matrix* input);
 
-// returns index corresponding to highest-probability class
+// returns indices corresponding to highest-probability classes for each
+// example previously inputted
 // assumes final output is in the output layer of network
-int predict(Network* network);
+int* predict(Network* network);
 
 void destroyNetwork(Network* network);

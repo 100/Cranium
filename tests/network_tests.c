@@ -22,8 +22,8 @@ int main(){
     forwardPass(network, example);
 
     // test prediction
-    int prediction = predict(network);
-    assert(prediction >= 0 && prediction <= 3);
+    int* prediction = predict(network);
+    assert(prediction[0] >= 0 && prediction[0] <= 3);
 
     // test destroy
     destroyMatrix(example);

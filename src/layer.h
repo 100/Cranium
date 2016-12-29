@@ -18,7 +18,7 @@ typedef struct Layer_ {
     LAYER_TYPE type;
     int size;
     void (*activation)(Matrix*);
-    Matrix* input; // is a row vector (1 x size)
+    Matrix* input; // matrix (num_examples x size)
 } Layer;
 
 typedef struct Connection_ {

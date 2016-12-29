@@ -8,25 +8,28 @@ double sigmoidDeriv(double input){
     return sigmoidFunc(input) * (1 - sigmoidFunc(input));
 }
 
-// row vectors
+// operates on each row
 void sigmoid(Matrix* input){
-    assert(input->rows == 1);
-    int i;
-    for (i = 0; i < input->cols; i++){
-        input->data[0][i] = sigmoidFunc(input->data[0][i]); 
+    int i, j;
+    for (i = 0; i < input->rows; i++){
+        for (j = 0; j < input->cols; j++){
+            input->data[i][j] = sigmoidFunc(input->data[i][j]); 
+        }
     }
 }
 
-// row vectors
+// operates on each row
 void softmax(Matrix* input){
-    assert(input->rows == 1);
-    double summed = 0;
     int i;
-    for (i = 0; i < input->cols; i++){
-        summed += exp(input->data[0][i]);
-    }
-    for (i = 0; i < input->cols; i++){
-        input->data[0][i] = exp(input->data[0][i]) / summed; 
+    for (i = 0; i < input->rows; i++){
+        double summed = 0;
+        int j;
+        for (j = 0; j < input->cols; j++){
+            summed += exp(input->data[i][j]);
+        }
+        for (j = 0; j < input->cols; j++){
+            input->data[i][j] = exp(input->data[i][j]) / summed; 
+        }
     }
 }
 
