@@ -21,11 +21,9 @@ Connection* createConnection(Layer* from, Layer* to){
         weights_data[i] = (double*)malloc(sizeof(double) * to->size);
     }
     connection->weights = createMatrix(from->size, to->size, weights_data);
-    double** bias_data = (double**)malloc(sizeof(double*) * from->size);
-    for (i = 0; i < from->size; i++){
-        bias_data[i] = (double*)malloc(sizeof(double) * to->size);
-    }
-    connection->bias = createMatrix(from->size, to->size, bias_data);
+    double** bias_data = (double**)malloc(sizeof(double*));
+    bias_data[0] = (double*)malloc(sizeof(double) * to->size);
+    connection->bias = createMatrix(1, to->size, bias_data);
     return connection;
 }
 
@@ -33,10 +31,8 @@ Connection* createConnection(Layer* from, Layer* to){
 // biases are 0
 void initializeConnection(Connection* connection){
     int i, j;
-    for (i = 0; i < connection->bias->rows; i++){
-        for (j = 0; j < connection->bias->cols; j++){
-            connection->bias->data[i][j] = 0;
-        }
+    for (i = 0; i < connection->bias->cols; i++){
+        connection->bias->data[0][i] = 0;
     }
     srand(time(NULL));
     for (i = 0; i < connection->weights->rows; i++){
@@ -52,7 +48,9 @@ void initializeConnection(Connection* connection){
 // calls activation function on each of them, and
 // modifies in-place
 void activateLayer(Layer* layer){
-    layer->activation(layer->input);
+    if (layer->activation != NULL){
+        layer->activation(layer->input);
+    }
 }
 
 void destroyLayer(Layer* layer){
@@ -61,8 +59,6 @@ void destroyLayer(Layer* layer){
 }
 
 void destroyConnection(Connection* connection){
-    destroyLayer(connection->from);
-    destroyLayer(connection->to);
     destroyMatrix(connection->weights);
     destroyMatrix(connection->bias);
     free(connection);

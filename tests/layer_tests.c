@@ -8,7 +8,7 @@ int main(){
     Connection* connection = createConnection(layer, layer2);
     assert(layer->input->rows == 1 && layer->input->cols == 10);
     assert(connection->weights->rows == 10 && connection->weights->cols == 5);
-    assert(connection->weights->rows == connection->bias->rows && connection->weights->cols == connection->bias->cols);
+    assert(connection->bias->rows == 1 && connection->weights->cols == connection->bias->cols);
 
     // test connection initialization
     initializeConnection(connection);
@@ -16,8 +16,10 @@ int main(){
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
             assert(connection->weights->data[i][j] >= -2 && connection->weights->data[i][j] <= 2);
-            assert(connection->bias->data[i][j] == 0);
         }
+    }
+    for (i = 0; i < connection->bias->cols; i++){
+        assert(connection->bias->data[0][i] == 0);
     }
     
     // test layer activation
@@ -31,6 +33,8 @@ int main(){
     }
 
     // test destroy
+    destroyLayer(layer);
+    destroyLayer(layer2);
     destroyLayer(layer3);
     destroyConnection(connection);
 

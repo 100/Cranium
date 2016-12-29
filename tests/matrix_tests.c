@@ -39,9 +39,23 @@ int main(){
     assert(product->data[0][0] == 5);
     assert(product->data[2][3] == 38);
 
+    // test hadamard
+    Matrix* hadamardProduct = hadamard(A, A);
+    assert(hadamardProduct->data[1][2] == A->data[1][2] * A->data[1][2]);
+
+    // test copy
+    Matrix* copied = copy(A);
+    for (i = 0; i < A->rows; i++){
+        for (j = 0; j < A->rows; j++){
+            assert(copied->data[i][j] == A->data[i][j]);
+        }
+    }
+
     // test destroy
     destroyMatrix(sum);
     destroyMatrix(product);
+    destroyMatrix(hadamardProduct);
+    destroyMatrix(copied);
 
     return 0;
 }

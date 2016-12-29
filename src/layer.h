@@ -10,11 +10,15 @@ typedef enum LAYER_TYPE_ {
     OUTPUT
 } LAYER_TYPE;
 
+// input matrix will continue to store values
+// even after activation occurs, so it is best
+// to think of it simply as a store rather than
+// strictly as input
 typedef struct Layer_ {
     LAYER_TYPE type;
     int size;
     void (*activation)(Matrix*);
-    Matrix* input; // is a row vector
+    Matrix* input; // is a row vector (1 x size)
 } Layer;
 
 typedef struct Connection_ {

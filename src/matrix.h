@@ -14,4 +14,10 @@ Matrix* add(Matrix* A, Matrix* b);
 
 Matrix* multiply(Matrix* A, Matrix* B);
 
+// element-wise multiplcation
+Matrix* hadamard(Matrix* A, Matrix* B);
+
+// returns a copy of input matrix
+Matrix* copy(Matrix* orig);
+
 void destroyMatrix(Matrix* matrix);
