@@ -1,15 +1,19 @@
-#include "../src/network.c"
-#include <stdio.h>
+#include "../src/std_includes.h"
+#include "../src/matrix.h"
+#include "../src/functions.h"
+#include "../src/layer.h"
+#include "../src/network.h"
 
 int main(){
     // test network creation
-    int hiddenSize = 3;
-    void (*hiddenActivations)(Matrix*) = sigmoid;
-    Network* network = createNetwork(5, 1, &hiddenSize, &hiddenActivations, 4, softmax);
-    assert(network->numLayers == 3 && network->numConnections == 2); 
+    int hiddenSize[] = {3, 5};
+    void (*hiddenActivations[])(Matrix*) = {sigmoid, relu};
+    Network* network = createNetwork(5, 2, hiddenSize, hiddenActivations, 4, softmax);
+    assert(network->numLayers == 4 && network->numConnections == 3); 
     assert(network->layers[0]->size == 5);
     assert(network->layers[1]->size == 3);
-    assert(network->layers[2]->size == 4);
+    assert(network->layers[2]->size == 5);
+    assert(network->layers[3]->size == 4);
 
     // test forward pass
     double** example_data = (double**)malloc(sizeof(double*) * 2);

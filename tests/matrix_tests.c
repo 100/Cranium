@@ -1,5 +1,5 @@
-#include "../src/matrix.c"
-#include <stdio.h>
+#include "../src/std_includes.h"
+#include "../src/matrix.h"
 
 int main(){
     double** A_data = (double**)malloc(sizeof(double*) * 3);
@@ -22,6 +22,25 @@ int main(){
     // test creation
     Matrix* A = createMatrix(3, 3, A_data);
     Matrix* B = createMatrix(3, 4, B_data);
+
+    // test batch creation
+    double** C_data = (double**)malloc(sizeof(double*) * 20);
+    for (i = 0; i < 20; i++){
+        C_data[i] = (double*)malloc(sizeof(double) * 2);
+        for (j = 0; j < 2; j++){
+            C_data[i][j] = 2;
+        }
+    }
+    Matrix* C = createMatrix(20, 2, C_data);
+    Matrix** batches = createBatches(C, 6);
+    for (i = 0; i < 6; i++){
+        assert(batches[i]->rows == 3 + (i < 2 ? 1 : 0));
+    }
+
+    // test transpose
+    Matrix* transposed = transpose(B);
+    assert(transposed->rows == 4 && transposed->cols == 3);
+    assert(transposed->data[0][1] == B->data[1][0]);
 
     // test addition
     Matrix* sum = add(A, A);
@@ -52,6 +71,14 @@ int main(){
     }
 
     // test destroy
+    destroyMatrix(A);
+    destroyMatrix(B);
+    destroyMatrix(C);
+    for (i = 0; i < 6; i++){
+        free(batches[i]);
+    }
+    free(batches);
+    destroyMatrix(transposed);
     destroyMatrix(sum);
     destroyMatrix(product);
     destroyMatrix(hadamardProduct);

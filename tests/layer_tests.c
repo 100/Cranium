@@ -1,5 +1,7 @@
-#include "../src/layer.c"
-#include <stdio.h>
+#include "../src/std_includes.h"
+#include "../src/matrix.h"
+#include "../src/functions.h"
+#include "../src/layer.h"
 
 int main(){
     // test creation

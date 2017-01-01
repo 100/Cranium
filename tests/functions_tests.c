@@ -1,11 +1,17 @@
-#include "../src/functions.c"
-#include <stdio.h>
+#include "../src/std_includes.h"
+#include "../src/matrix.h"
+#include "../src/functions.h"
 
 int main(){
     // test sigmoid
     double k;
     for (k = -10.0; k < 30.0; k += 2){
         assert(sigmoidFunc(k) >= 0 && sigmoidFunc(k) <= 1);
+    }
+
+    // test relu
+    for (k = -10.0; k < 30.0; k += 2){
+        assert(reluFunc(k) == MAX(0, k));
     }
 
     // test softmax
