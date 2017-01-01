@@ -7,6 +7,7 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+// batch gradient descent
 void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, int maxIters, int verbose);
 
 

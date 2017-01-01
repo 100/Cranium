@@ -1,4 +1,3 @@
-// code for matrix operations
 #include "std_includes.h"
 
 #ifndef MATRIX_H

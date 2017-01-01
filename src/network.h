@@ -1,5 +1,3 @@
-// the overall code for the network in which propagation occurs
-
 #include "std_includes.h"
 #include "matrix.h"
 #include "functions.h"

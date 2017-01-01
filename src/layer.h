@@ -1,6 +1,3 @@
-// struct and functions for a layer and connection, which holds a matrix of weights and biases
-// use matrix multiplcation to not need neuron structs
-
 #include "std_includes.h"
 #include "matrix.h"
 #include "functions.h"

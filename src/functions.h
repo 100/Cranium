@@ -1,4 +1,3 @@
-// activation and error functions such as softmax, sigmoid, etc
 #include "std_includes.h"
 #include "matrix.h"
 
