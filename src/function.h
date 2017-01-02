@@ -1,8 +1,8 @@
 #include "std_includes.h"
 #include "matrix.h"
 
-#ifndef FUNCTIONS_H
-#define FUNCTIONS_H
+#ifndef FUNCTION_H
+#define FUNCTION_H
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -19,11 +19,20 @@ double reluFunc(double input);
 // derivative of ReLU given output of ReLU
 double reluDeriv(double reluInput);
 
+// raw tanh function
+double tanHFunc(double input);
+
+// derivatve of tanh given output of sigmoid
+double tanHDeriv(double sigmoidInput);
+
 // applies sigmoid function to each entry of $input
 void sigmoid(Matrix* input);
 
 // applies ReLU function to each entry of input
 void relu(Matrix* input);
+
+// applues tanh function to each entry of input
+void tanH(Matrix* input);
 
 // applies softmax function to each row of $input
 void softmax(Matrix* input);
@@ -37,7 +46,7 @@ double crossEntropyLoss(Matrix* prediction, Matrix* actual);
 */
 
 double sigmoidFunc(double input){
-    return 1 / (1 + exp(input));
+    return 1 / (1 + exp(-1 * input));
 }
 
 double sigmoidDeriv(double sigmoidInput){
@@ -62,12 +71,30 @@ void sigmoid(Matrix* input){
     }
 }
 
+double tanHFunc(double input){
+    return tanh(input);
+}
+
+double tanHDeriv(double tanhInput){
+    return 1 - (tanhInput * tanhInput);
+}
+
 // operates on each row
 void relu(Matrix* input){
     int i, j;
     for (i = 0; i < input->rows; i++){
         for (j = 0; j < input->cols; j++){
             input->data[i][j] = reluFunc(input->data[i][j]); 
+        }
+    }
+}
+
+// operates on each row
+void tanH(Matrix* input){
+    int i, j;
+    for (i = 0; i < input->rows; i++){
+        for (j = 0; j < input->cols; j++){
+            input->data[i][j] = tanHFunc(input->data[i][j]); 
         }
     }
 }

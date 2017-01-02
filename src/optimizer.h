@@ -1,6 +1,6 @@
 #include "std_includes.h"
 #include "matrix.h"
-#include "functions.h"
+#include "function.h"
 #include "layer.h"
 #include "network.h"
 
@@ -96,9 +96,19 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
                     transposeInto(network->connections[layer]->weights, WTi[hiddenLayer]);
                     multiplyInto(errori[layer + 1], WTi[hiddenLayer], errorLastTi[hiddenLayer]);
                     copyValuesInto(con->to->input, fprimei[hiddenLayer]);
-                    for (j = 0; i < fprimei[hiddenLayer]->cols; i++){
-                        // NOTE: must use appropriate derivative
-                        fprimei[hiddenLayer]->data[0][j] = sigmoidDeriv(fprimei[hiddenLayer]->data[0][j]);
+                    double (*derivative)(double);
+                    // identify appropriate derivative
+                    if (con->to->activation == sigmoid){
+                        derivative = sigmoidDeriv;
+                    }
+                    else if (con->to->activation == relu){
+                        derivative = reluDeriv;
+                    }
+                    else{
+                        derivative = tanHDeriv;
+                    }
+                    for (j = 0; j < fprimei[hiddenLayer]->cols; j++){
+                        fprimei[hiddenLayer]->data[0][j] = derivative(fprimei[hiddenLayer]->data[0][j]);
                     }
                     hadamardInto(errorLastTi[hiddenLayer], fprimei[hiddenLayer], errori[layer]);
 
@@ -131,7 +141,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
                 }
             }
         }
-
+        
         // adjust weights and bias
         for (i = 0; i < network->numConnections; i++){
             scalarMultiply(dWi_avg[i], -1 * learningRate * (1.0 / data->rows));
@@ -148,9 +158,9 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
             zeroMatrix(dbi_avg[i]);
         }
 
-        // if verbose is set, print loss every 50 epochs
+        // if verbose is set, print loss every 100 epochs
         if (verbose != 0){
-            if (epoch % 50 == 0){
+            if (epoch % 100 == 0){
                 forwardPass(network, data);
                 printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network->layers[network->numLayers - 1]->input, classes));
             }

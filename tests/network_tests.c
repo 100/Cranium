@@ -1,6 +1,6 @@
 #include "../src/std_includes.h"
 #include "../src/matrix.h"
-#include "../src/functions.h"
+#include "../src/function.h"
 #include "../src/layer.h"
 #include "../src/network.h"
 

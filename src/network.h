@@ -1,6 +1,6 @@
 #include "std_includes.h"
 #include "matrix.h"
-#include "functions.h"
+#include "function.h"
 #include "layer.h"
 
 #ifndef NETWORK_H
@@ -29,6 +29,9 @@ void forwardPass(Network* network, Matrix* input);
 // example previously inputted
 // assumes final output is in the output layer of network
 int* predict(Network* network);
+
+// return accuracy (num_correct / num_total) of network on predictions
+double accuracy(Network* network, Matrix* data, Matrix* classes);
 
 // frees network, its layers, and its connections
 void destroyNetwork(Network* network);
@@ -90,18 +93,33 @@ void forwardPass(Network* network, Matrix* input){
 
 int* predict(Network* network){
     int i, j, max;
-    Layer* outputLayer = network->layers[network->numLayers - 2];
+    Layer* outputLayer = network->layers[network->numLayers - 1];
     int* predictions = (int*)malloc(sizeof(int) * outputLayer->input->rows);
     for (i = 0; i < outputLayer->input->rows; i++){
         max = 0;
         for (j = 1; j < outputLayer->size; j++){
-            if (outputLayer->input->data[0][j] > outputLayer->input->data[0][max]){
+            if (outputLayer->input->data[i][j] > outputLayer->input->data[i][max]){
                 max = j;
             }
         }
         predictions[i] = max;
     }
     return predictions;
+}
+
+double accuracy(Network* network, Matrix* data, Matrix* classes){
+    assert(data->rows == classes->rows);
+    assert(data->cols == network->layers[network->numLayers - 1]->size);
+    forwardPass(network, data);
+    int* predictions = predict(network);
+    double numCorrect = 0;
+    int i;
+    for (i = 0; i < data->rows; i++){
+        if (classes->data[i][predictions[i]] == 1){
+            numCorrect++;
+        }
+    }
+    return numCorrect / classes->rows;
 }
 
 void destroyNetwork(Network* network){

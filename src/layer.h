@@ -1,6 +1,6 @@
 #include "std_includes.h"
 #include "matrix.h"
-#include "functions.h"
+#include "function.h"
 
 #ifndef LAYER_H
 #define LAYER_H
@@ -78,7 +78,7 @@ Connection* createConnection(Layer* from, Layer* to){
     return connection;
 }
 
-// weights are random between -2 and 2
+// weights are random between -1 and 1
 // biases are 0
 void initializeConnection(Connection* connection){
     int i, j;
@@ -89,7 +89,7 @@ void initializeConnection(Connection* connection){
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
             int random = rand();
-            double val = ((random % 2 == 0 ? -1 : 1) * random) / (.5 * RAND_MAX);
+            double val = (1.0 * (random % 2 == 0 ? -1 : 1) * random) / RAND_MAX;
             connection->weights->data[i][j] = val;
         }
     }

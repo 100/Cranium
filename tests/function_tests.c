@@ -1,6 +1,6 @@
 #include "../src/std_includes.h"
 #include "../src/matrix.h"
-#include "../src/functions.h"
+#include "../src/function.h"
 
 int main(){
     // test sigmoid
@@ -53,7 +53,7 @@ int main(){
 
     Matrix* predict = createMatrix(3, 3, A_data);
     Matrix* actual = createMatrix(3, 3, B_data);
-    assert(crossEntropyLoss(predict, actual) == 0);
+    assert(crossEntropyLoss(predict, actual) <= 0.001);
 
     destroyMatrix(predict);
     destroyMatrix(actual);
