@@ -89,8 +89,8 @@ void initializeConnection(Connection* connection){
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
             int random = rand();
-            double val = (1.0 * (random % 2 == 0 ? -1 : 1) * random) / RAND_MAX;
-            connection->weights->data[i][j] = val;
+            double weight = (1.0 * (random % 2 == 0 ? -1 : 1) * random) / RAND_MAX;
+            connection->weights->data[i][j] = weight;
         }
     }
 }

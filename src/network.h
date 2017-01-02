@@ -119,6 +119,7 @@ double accuracy(Network* network, Matrix* data, Matrix* classes){
             numCorrect++;
         }
     }
+    free(predictions);
     return numCorrect / classes->rows;
 }
 
