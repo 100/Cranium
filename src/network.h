@@ -25,6 +25,10 @@ Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, v
 // input should be a matrix where each row is an input
 void forwardPass(Network* network, Matrix* input);
 
+// calculate the cross entropy loss between two datasets with 
+// optional regularization (must provide network if using regularization)
+double crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, double regularizationStrength);
+
 // returns indices corresponding to highest-probability classes for each
 // example previously inputted
 // assumes final output is in the output layer of network
@@ -89,6 +93,33 @@ void forwardPass(Network* network, Matrix* input){
         destroyMatrix(tmp);
         activateLayer(network->connections[i]->to);
     }
+}
+
+// matrixes of size [num examples] x [num classes]
+double crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, double regularizationStrength){
+    assert(prediction->rows == actual->rows);
+    assert(prediction->cols == actual->cols);
+    double total_err = 0;
+    int i, j, k;
+    for (i = 0; i < prediction->rows; i++){
+        double cur_err = 0;
+        for (j = 0; j < prediction->cols; j++){
+            cur_err += actual->data[i][j] * log(MAX(DBL_MIN, prediction->data[i][j]));
+        }
+        total_err += cur_err;
+    }
+    double reg_err = 0;
+    if (network != NULL){
+        for (i = 0; i < network->numConnections; i++){
+            Matrix* weights = network->connections[i]->weights;
+            for (j = 0; j < weights->rows; j++){
+                for (k = 0; k < weights->cols; k++){
+                    reg_err += weights->data[i][j] * weights->data[i][j];
+                }
+            }
+        }
+    }
+    return ((-1.0 / actual->rows) * total_err) + (regularizationStrength * .5 * reg_err);
 }
 
 int* predict(Network* network){

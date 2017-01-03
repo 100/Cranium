@@ -33,30 +33,7 @@ int main(){
     }
     assert(sum >= .99 && sum <= 1.01);
 
-    // test cross-entropy loss
-    double** A_data = (double**)malloc(sizeof(double*) * 3);
-    int i;
-    for (i = 0; i < 3; i++){
-        A_data[i] = (double*)malloc(sizeof(double) * 3);
-        for (j = 0; j < 3; j++){
-            A_data[i][j] = i + j;
-        }
-    }
-
-    double** B_data = (double**)malloc(sizeof(double*) * 3);
-    for (i = 0; i < 3; i++){
-        B_data[i] = (double*)malloc(sizeof(double) * 3);
-        for (j = 0; j < 3; j++){
-            B_data[i][j] = i + j;
-        }
-    }
-
-    Matrix* predict = createMatrix(3, 3, A_data);
-    Matrix* actual = createMatrix(3, 3, B_data);
-    assert(crossEntropyLoss(predict, actual) <= 0.001);
-
-    destroyMatrix(predict);
-    destroyMatrix(actual);
+    destroyMatrix(rowMatrix);
 
     return 0;
 }

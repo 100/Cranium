@@ -8,14 +8,14 @@
 #define OPTIMIZER_H
 
 // batch gradient descent
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, int maxIters, int verbose);
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, double regularizationStrength, int maxIters, int verbose);
 
 
 /*
     Begin functions.
 */
 
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, int maxIters, int verbose){
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, double regularizationStrength, int maxIters, int verbose){
     assert(network->layers[0]->size == data->cols);
     assert(data->rows == classes->rows);
     assert(network->layers[network->numLayers - 1]->size == classes->cols);
@@ -31,10 +31,12 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
     Matrix* errori[network->numLayers];
     Matrix* dWi[network->numConnections];
     Matrix* dbi[network->numConnections];
+    Matrix* regi[network->numConnections];
     for (i = 0; i < network->numConnections; i++){
         errori[i] = createMatrixZeroes(1, network->layers[i]->size);
         dWi[i] = createMatrixZeroes(network->connections[i]->weights->rows, network->connections[i]->weights->cols);
         dbi[i] = createMatrixZeroes(1, network->connections[i]->bias->cols);
+        regi[i] = createMatrixZeroes(network->connections[i]->weights->rows, network->connections[i]->weights->cols);
     }
     errori[i] = createMatrixZeroes(1, network->layers[i]->size);
 
@@ -141,28 +143,39 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
                 }
             }
         }
-        
+        // average out gradients
+        for (i = 0; i < network->numConnections; i++){
+            scalarMultiply(dWi_avg[i], 1.0 / data->rows);
+            scalarMultiply(dbi_avg[i], 1.0 / data->rows);
+        }
+
+        // add regularization
+        for (i = 0; i < network->numConnections; i++){
+            copyValuesInto(network->connections[i]->weights, regi[i]);
+            scalarMultiply(regi[i], regularizationStrength);
+            addTo(regi[i], dWi_avg[i]);
+        }
+
         // adjust weights and bias
         for (i = 0; i < network->numConnections; i++){
-            scalarMultiply(dWi_avg[i], -1 * learningRate * (1.0 / data->rows));
-            scalarMultiply(dbi_avg[i], -1 * learningRate * (1.0 / data->rows));
-        }
-        for (i = 0; i < network->numConnections; i++){
+            scalarMultiply(dWi_avg[i], -1);
+            scalarMultiply(dbi_avg[i], -1);
             addTo(dWi_avg[i], network->connections[i]->weights);
             addTo(dbi_avg[i], network->connections[i]->bias);
         }
 
-        // zero out reusable average matrices
+        // zero out reusable average matrices and regularization matrices
         for (i = 0; i < network->numConnections; i++){
             zeroMatrix(dWi_avg[i]);
             zeroMatrix(dbi_avg[i]);
+            zeroMatrix(regi[i]);
         }
 
         // if verbose is set, print loss every 100 epochs
         if (verbose != 0){
             if (epoch % 100 == 0){
                 forwardPass(network, data);
-                printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network->layers[network->numLayers - 1]->input, classes));
+                printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
             }
         }
     }
@@ -178,6 +191,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
     for (i = 0; i < network->numConnections; i++){
         destroyMatrix(dWi_avg[i]);
         destroyMatrix(dbi_avg[i]);
+        destroyMatrix(regi[i]);
     }
 
     if (numHidden > 0){

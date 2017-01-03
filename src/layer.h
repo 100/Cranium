@@ -78,7 +78,7 @@ Connection* createConnection(Layer* from, Layer* to){
     return connection;
 }
 
-// weights are random between -1 and 1
+// weights are guassian random using fan-in method
 // biases are 0
 void initializeConnection(Connection* connection){
     int i, j;
@@ -88,9 +88,8 @@ void initializeConnection(Connection* connection){
     srand(time(NULL));
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
-            int random = rand();
-            double weight = (1.0 * (random % 2 == 0 ? -1 : 1) * random) / RAND_MAX;
-            connection->weights->data[i][j] = weight;
+            int neuronsIn = connection->weights->rows;
+            connection->weights->data[i][j] = box_muller() / sqrt(neuronsIn);
         }
     }
 }

@@ -37,8 +37,8 @@ void tanH(Matrix* input);
 // applies softmax function to each row of $input
 void softmax(Matrix* input);
 
-// calculate the cross entropy loss between two datasets
-double crossEntropyLoss(Matrix* prediction, Matrix* actual);
+// sample from the unit guassian distribution (mean = 0, variance = 1)
+double box_muller();
 
 
 /*
@@ -114,20 +114,24 @@ void softmax(Matrix* input){
     }
 }
 
-// matrixes of size [num examples] x [num classes]
-double crossEntropyLoss(Matrix* prediction, Matrix* actual){
-    assert(prediction->rows == actual->rows);
-    assert(prediction->cols == actual->cols);
-    double total_err = 0;
-    int i, j;
-    for (i = 0; i < prediction->rows; i++){
-        double cur_err = 0;
-        for (j = 0; j < prediction->cols; j++){
-            cur_err += actual->data[i][j] * log(MAX(DBL_MIN, prediction->data[i][j]));
-        }
-        total_err += cur_err;
+// adapted from wikipedia
+double box_muller(){
+    const double epsilon = DBL_MIN;
+    const double two_pi = 2.0 * 3.14159265358979323846;
+    static double z0, z1;
+    static int generate;
+    generate = generate == 1 ? 0 : 1;
+    if (!generate){
+        return z1;
     }
-    return (-1.0 / actual->rows) * total_err;
+    double u1, u2;
+    do{
+        u1 = rand() * (1.0 / RAND_MAX);
+        u2 = rand() * (1.0 / RAND_MAX);
+    } while (u1 <= epsilon);
+    z0 = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);
+    z1 = sqrt(-2.0 * log(u1)) * sin(two_pi * u2);
+    return z0;
 }
 
 #endif
