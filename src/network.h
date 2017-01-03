@@ -114,7 +114,7 @@ double crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, do
             Matrix* weights = network->connections[i]->weights;
             for (j = 0; j < weights->rows; j++){
                 for (k = 0; k < weights->cols; k++){
-                    reg_err += weights->data[i][j] * weights->data[i][j];
+                    reg_err += weights->data[j][k] * weights->data[j][k];
                 }
             }
         }
