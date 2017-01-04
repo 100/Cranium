@@ -116,7 +116,7 @@ void softmax(Matrix* input){
 
 // adapted from wikipedia
 float box_muller(){
-    const float epsilon = DBL_MIN;
+    const float epsilon = FLT_MIN;
     const float two_pi = 2.0 * 3.14159265358979323846;
     static float z0, z1;
     static int generate;
