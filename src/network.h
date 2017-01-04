@@ -40,6 +40,12 @@ double accuracy(Network* network, Matrix* data, Matrix* classes);
 // frees network, its layers, and its connections
 void destroyNetwork(Network* network);
 
+// write network configuration to a file
+void saveNetwork(Network* network, char* path);
+
+// read network configuration from a file
+Network* readNetwork(char* path);
+
 
 /*
     Begin functions.
@@ -165,6 +171,145 @@ void destroyNetwork(Network* network){
     free(network->layers);
     free(network->connections);
     free(network);
+}
+
+// serializes in order: sizes --> weights --> bias
+void saveNetwork(Network* network, char* path){
+    FILE* fp = fopen(path, "w");
+    int i, j, k;
+
+    // serialize number of layers
+    fprintf(fp, "%d\n", network->numLayers);
+
+    // serialize layer sizes
+    for (i = 0; i < network->numLayers; i++){
+        fprintf(fp, "%d\n", network->layers[i]->size);
+    }
+
+    // serialize hidden functions
+    for (i = 0; i < network->numLayers - 2; i++){
+        if (network->layers[1 + i]->activation == sigmoid){
+            fprintf(fp, "sigmoid\n");
+        }
+        else if (network->layers[1 + i]->activation == relu){
+            fprintf(fp, "relu\n");
+        }
+        else{
+            fprintf(fp, "tanH\n");
+        }
+    }
+
+    // serialize output function
+    if (network->layers[network->numLayers - 1]->activation == softmax){
+        fprintf(fp, "softmax\n");
+    }
+
+    // serialize weights in row-major ordering
+    for (k = 0; k < network->numConnections; k++){
+        Connection* con = network->connections[k];
+        for (i = 0; i < con->weights->rows; i++){
+            for (j = 0; j < con->weights->cols; j++){
+                fprintf(fp, "%la\n", con->weights->data[i][j]);
+            }
+        }
+    }
+
+    // serialize bias
+    for (k = 0; k < network->numConnections; k++){
+        Connection* con = network->connections[k];
+        for (i = 0; i < con->bias->cols; i++){
+            fprintf(fp, "%la\n", con->bias->data[0][i]);
+        }
+    }
+
+    fclose(fp);
+}
+
+Network* readNetwork(char* path){
+    FILE* fp = fopen(path, "r");
+    int i, j, k;
+    char buf[50];
+
+    // get number of layers
+    int numLayers;
+    fgets(buf, 50, fp);
+    sscanf(buf, "%d", &numLayers);
+    memset(&buf[0], 0, 50);
+
+    // get layer sizes
+    int layerSizes[numLayers];
+    for (i = 0; i < numLayers; i++){
+        fgets(buf, 50, fp);
+        sscanf(buf, "%d", &layerSizes[i]);
+        memset(&buf[0], 0, 50);
+    }
+
+    // get all activation functions
+    Activation funcs[numLayers - 1];
+    char funcString[50];
+    for (i = 0; i < numLayers - 1; i++){
+        fgets(buf, 50, fp);
+        sscanf(buf, "%s", funcString);
+        if (strcmp(funcString, "sigmoid") == 0){
+            funcs[i] = sigmoid;
+        }
+        else if (strcmp(funcString, "relu") == 0){
+            funcs[i] = relu;
+        }
+        else if (strcmp(funcString, "tanH") == 0){
+            funcs[i] = tanH;
+        }
+        else{
+            funcs[i] = softmax;
+        }
+        memset(&buf[0], 0, 50);
+    }
+
+    // construct network structure
+    Network* network;
+    int inputSize = layerSizes[0];
+    int outputSize = layerSizes[numLayers - 1];
+    int numHiddenLayers = numLayers - 2;
+    Activation outputFunc = funcs[numLayers - 2];
+    if (numHiddenLayers > 0){
+        int hiddenSizes[numLayers - 2];
+        for (i = 0; i < numLayers - 2; i++){
+            hiddenSizes[i] = layerSizes[1 + i];
+        }
+        Activation hiddenFuncs[numLayers - 2];
+        for (i = 0; i < numLayers - 2; i++){
+            hiddenFuncs[i] = funcs[i];
+        }
+        network = createNetwork(inputSize, numHiddenLayers, hiddenSizes, hiddenFuncs, outputSize, outputFunc);
+    }
+    else{
+        network = createNetwork(inputSize, 0, NULL, NULL, outputSize, outputFunc);
+    }
+
+    // fill in weights
+    for (k = 0; k < network->numConnections; k++){
+        Connection* con = network->connections[k];
+        for (i = 0; i < con->weights->rows; i++){
+            for (j = 0; j < con->weights->cols; j++){
+                fgets(buf, 50, fp);
+                sscanf(buf, "%la", &con->weights->data[i][j]);
+                memset(&buf[0], 0, 50);
+            }
+        }
+    }
+
+    // fill in bias
+    for (k = 0; k < network->numConnections; k++){
+        Connection* con = network->connections[k];
+        for (i = 0; i < con->bias->cols; i++){
+            fgets(buf, 50, fp);
+            sscanf(buf, "%la", &con->bias->data[0][i]);
+            memset(&buf[0], 0, 50);
+        }
+    }
+
+    fclose(fp);
+    return network;
 }
 
 #endif

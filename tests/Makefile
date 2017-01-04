@@ -23,6 +23,8 @@ network_tests:
 	$(COMPILER) $(LIBS) $(FLAGS) network_tests network_tests.c
 	./network_tests
 	rm network_tests
+	rm network.pkl
+	rm network2.pkl
 
 optimizer_tests:
 	$(COMPILER) $(LIBS) $(FLAGS) optimizer_tests optimizer_tests.c

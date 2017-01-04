@@ -69,6 +69,9 @@ void hadamardInto(Matrix* A, Matrix* B, Matrix* into);
 // returns a copy of input matrix
 Matrix* copy(Matrix* orig);
 
+// returns 1 if matrices are equal, 0 otherwise
+int equals(Matrix* A, Matrix* B);
+
 // frees a matrix and its data
 void destroyMatrix(Matrix* matrix);
 
@@ -310,6 +313,24 @@ Matrix* copy(Matrix* orig){
         memcpy(data[i], orig->data[i], sizeof(double) * orig->cols);
     }
     return createMatrix(orig->rows, orig->cols, data);
+}
+
+int equals(Matrix* A, Matrix* B){
+    if (A->rows != B->rows){
+        return 0;
+    }
+    if (A->cols != B->cols){
+        return 0;
+    }
+    int i, j;
+    for (i = 0; i < A->rows; i++){
+        for (j = 0; j < A->cols; j++){
+            if (A->data[i][j] != B->data[i][j]){
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 void destroyMatrix(Matrix* matrix){

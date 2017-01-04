@@ -45,18 +45,52 @@ int main(){
     Matrix* predictM = createMatrix(3, 3, A_data);
     Matrix* actual = createMatrix(3, 3, B_data);
     assert(crossEntropyLoss(NULL, predictM, actual, 0) <= 0.001);
-    destroyMatrix(predictM);
-    destroyMatrix(actual);
 
     // test prediction
+    double** predict_data = (double**)malloc(sizeof(double*) * 1);
+    predict_data[0] = (double*)malloc(sizeof(double) * 5);
+    predict_data[0][0] = 0.1;
+    predict_data[0][1] = 0.2;
+    predict_data[0][2] = 0.7;
+    predict_data[0][3] = 0;
+    predict_data[0][4] = 0;
+    Matrix* predictData = createMatrix(1, 5, predict_data);
+    destroyMatrix(network->layers[3]->input);
+    network->layers[3]->input = predictData;
     int* prediction = predict(network);
-    assert(prediction[0] >= 0 && prediction[0] <= 3);
-    assert(prediction[1] >= 0 && prediction[1] <= 3);
+    assert(prediction[0] == 2);
     free(prediction);
 
+    // test serialization
+    saveNetwork(network, "network.pkl");
+    Network* fromFile = readNetwork("network.pkl");
+    assert(network->numLayers == fromFile->numLayers);
+    assert(network->numConnections == fromFile->numConnections);
+    assert(equals(network->connections[0]->weights, fromFile->connections[0]->weights) == 1);
+    assert(equals(network->connections[1]->weights, fromFile->connections[1]->weights) == 1);
+    assert(equals(network->connections[2]->weights, fromFile->connections[2]->weights) == 1);
+    assert(equals(network->connections[0]->bias, fromFile->connections[0]->bias) == 1);
+    assert(equals(network->connections[1]->bias, fromFile->connections[1]->bias) == 1);
+    assert(equals(network->connections[2]->bias, fromFile->connections[2]->bias) == 1);
+
+    // test everything but without hidden layers
+    Network* networkNoHidden = createNetwork(5, 0, NULL, NULL, 4, softmax);
+    forwardPass(networkNoHidden, example);
+    saveNetwork(networkNoHidden, "network2.pkl");
+    Network* fromFile2 = readNetwork("network2.pkl");
+    assert(networkNoHidden->numLayers == fromFile2->numLayers);
+    assert(networkNoHidden->numConnections == fromFile2->numConnections);
+    assert(equals(networkNoHidden->connections[0]->weights, fromFile2->connections[0]->weights) == 1);
+    assert(equals(networkNoHidden->connections[0]->bias, fromFile2->connections[0]->bias) == 1);
+
     // test destroy
+    destroyMatrix(predictM);
+    destroyMatrix(actual);
     destroyMatrix(example);
     destroyNetwork(network);
+    destroyNetwork(fromFile);
+    destroyNetwork(networkNoHidden);
+    destroyNetwork(fromFile2);
 
     return 0;
 }
