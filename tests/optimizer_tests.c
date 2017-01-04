@@ -10,8 +10,8 @@ int main(){
     int hiddenSize[] = {2};
     void (*hiddenActivations[])(Matrix*) = {sigmoid};
     Network* network = createNetwork(2, 1, hiddenSize, hiddenActivations, 2, softmax);
-    double** data = (double**)malloc(sizeof(double*) * 1);
-    data[0] = (double*)malloc(sizeof(double*) * 2);
+    float** data = (float**)malloc(sizeof(float*) * 1);
+    data[0] = (float*)malloc(sizeof(float*) * 2);
     data[0][0] = 1;
     data[0][1] = 0;
     Matrix* dataR = createMatrix(1, 2, data);
@@ -27,8 +27,8 @@ int main(){
     assert(network->layers[2]->input->data[0][0] >= .474 && network->layers[2]->input->data[0][0] <= .475);
     assert(network->layers[2]->input->data[0][1] >= .520 && network->layers[2]->input->data[0][1] <= .530);
 
-    double** classes = (double**)malloc(sizeof(double*) * 1);
-    classes[0] = (double*)malloc(sizeof(double*) * 2);
+    float** classes = (float**)malloc(sizeof(float*) * 1);
+    classes[0] = (float*)malloc(sizeof(float*) * 2);
     classes[0][0] = 0;
     classes[0][1] = 1;
     Matrix* classR = createMatrix(1, 2, classes);
@@ -49,9 +49,9 @@ int main(){
 
     // test on XOR ([off on] ordering)
     int i;
-    data = (double**)malloc(sizeof(double*) * 4);
+    data = (float**)malloc(sizeof(float*) * 4);
     for (i = 0; i < 4; i++){
-        data[i] = (double*)malloc(sizeof(double) * 2);
+        data[i] = (float*)malloc(sizeof(float) * 2);
     }
     data[0][0] = 0;
     data[0][1] = 0;
@@ -62,9 +62,9 @@ int main(){
     data[3][0] = 1;
     data[3][1] = 1;
     Matrix* trainingData = createMatrix(4, 2, data);
-    classes = (double**)malloc(sizeof(double*) * 4);
+    classes = (float**)malloc(sizeof(float*) * 4);
     for (i = 0; i < 4; i++){
-        classes[i] = (double*)malloc(sizeof(double) * 2);
+        classes[i] = (float*)malloc(sizeof(float) * 2);
         classes[i][0] = (data[i][0] == 0 && data[i][1] == 0) || (data[i][0] == 1 && data[i][1] == 1) ? 1 : 0;
         classes[i][1] = classes[i][0] == 1 ? 0 : 1;
     }

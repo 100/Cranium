@@ -8,14 +8,14 @@
 #define OPTIMIZER_H
 
 // batch gradient descent
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, double regularizationStrength, int maxIters, int verbose);
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float learningRate, float regularizationStrength, int maxIters, int verbose);
 
 
 /*
     Begin functions.
 */
 
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, double learningRate, double regularizationStrength, int maxIters, int verbose){
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float learningRate, float regularizationStrength, int maxIters, int verbose){
     assert(network->layers[0]->size == data->cols);
     assert(data->rows == classes->rows);
     assert(network->layers[network->numLayers - 1]->size == classes->cols);
@@ -98,7 +98,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, doubl
                     transposeInto(network->connections[layer]->weights, WTi[hiddenLayer]);
                     multiplyInto(errori[layer + 1], WTi[hiddenLayer], errorLastTi[hiddenLayer]);
                     copyValuesInto(con->to->input, fprimei[hiddenLayer]);
-                    double (*derivative)(double);
+                    float (*derivative)(float);
                     // identify appropriate derivative
                     if (con->to->activation == sigmoid){
                         derivative = sigmoidDeriv;

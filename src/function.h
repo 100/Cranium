@@ -8,22 +8,22 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 // raw sigmoid function
-double sigmoidFunc(double input);
+float sigmoidFunc(float input);
 
 // derivatve of sigmoid given output of sigmoid
-double sigmoidDeriv(double sigmoidInput);
+float sigmoidDeriv(float sigmoidInput);
 
 // raw ReLU function
-double reluFunc(double input);
+float reluFunc(float input);
 
 // derivative of ReLU given output of ReLU
-double reluDeriv(double reluInput);
+float reluDeriv(float reluInput);
 
 // raw tanh function
-double tanHFunc(double input);
+float tanHFunc(float input);
 
 // derivatve of tanh given output of sigmoid
-double tanHDeriv(double sigmoidInput);
+float tanHDeriv(float sigmoidInput);
 
 // applies sigmoid function to each entry of $input
 void sigmoid(Matrix* input);
@@ -38,26 +38,26 @@ void tanH(Matrix* input);
 void softmax(Matrix* input);
 
 // sample from the unit guassian distribution (mean = 0, variance = 1)
-double box_muller();
+float box_muller();
 
 
 /*
     Begin functions.
 */
 
-double sigmoidFunc(double input){
-    return 1 / (1 + exp(-1 * input));
+float sigmoidFunc(float input){
+    return 1 / (1 + expf(-1 * input));
 }
 
-double sigmoidDeriv(double sigmoidInput){
+float sigmoidDeriv(float sigmoidInput){
     return sigmoidInput * (1 - sigmoidInput);
 }
 
-double reluFunc(double input){
+float reluFunc(float input){
     return MAX(0, input);
 }
 
-double reluDeriv(double reluInput){
+float reluDeriv(float reluInput){
     return reluInput > 0 ? 1 : 0;
 }
 
@@ -71,11 +71,11 @@ void sigmoid(Matrix* input){
     }
 }
 
-double tanHFunc(double input){
+float tanHFunc(float input){
     return tanh(input);
 }
 
-double tanHDeriv(double tanhInput){
+float tanHDeriv(float tanhInput){
     return 1 - (tanhInput * tanhInput);
 }
 
@@ -103,34 +103,34 @@ void tanH(Matrix* input){
 void softmax(Matrix* input){
     int i;
     for (i = 0; i < input->rows; i++){
-        double summed = 0;
+        float summed = 0;
         int j;
         for (j = 0; j < input->cols; j++){
-            summed += exp(input->data[i][j]);
+            summed += expf(input->data[i][j]);
         }
         for (j = 0; j < input->cols; j++){
-            input->data[i][j] = exp(input->data[i][j]) / summed; 
+            input->data[i][j] = expf(input->data[i][j]) / summed; 
         }
     }
 }
 
 // adapted from wikipedia
-double box_muller(){
-    const double epsilon = DBL_MIN;
-    const double two_pi = 2.0 * 3.14159265358979323846;
-    static double z0, z1;
+float box_muller(){
+    const float epsilon = DBL_MIN;
+    const float two_pi = 2.0 * 3.14159265358979323846;
+    static float z0, z1;
     static int generate;
     generate = generate == 1 ? 0 : 1;
     if (!generate){
         return z1;
     }
-    double u1, u2;
+    float u1, u2;
     do{
         u1 = rand() * (1.0 / RAND_MAX);
         u2 = rand() * (1.0 / RAND_MAX);
     } while (u1 <= epsilon);
-    z0 = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);
-    z1 = sqrt(-2.0 * log(u1)) * sin(two_pi * u2);
+    z0 = sqrt(-2.0 * logf(u1)) * cos(two_pi * u2);
+    z1 = sqrt(-2.0 * logf(u1)) * sin(two_pi * u2);
     return z0;
 }
 

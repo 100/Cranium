@@ -16,9 +16,9 @@ int main(){
     assert(network->layers[3]->size == 4);
 
     // test forward pass
-    double** example_data = (double**)malloc(sizeof(double*) * 2);
-    example_data[0] = (double*)malloc(sizeof(double) * 5);
-    example_data[1] = (double*)malloc(sizeof(double) * 5);
+    float** example_data = (float**)malloc(sizeof(float*) * 2);
+    example_data[0] = (float*)malloc(sizeof(float) * 5);
+    example_data[1] = (float*)malloc(sizeof(float) * 5);
     int i, j;
     for (i = 0; i < 5; i++){
         example_data[0][i] = (i + 1.0) / 2;
@@ -28,16 +28,16 @@ int main(){
     forwardPass(network, example);
 
     // test cross-entropy loss
-    double** A_data = (double**)malloc(sizeof(double*) * 3);
+    float** A_data = (float**)malloc(sizeof(float*) * 3);
     for (i = 0; i < 3; i++){
-        A_data[i] = (double*)malloc(sizeof(double) * 3);
+        A_data[i] = (float*)malloc(sizeof(float) * 3);
         for (j = 0; j < 3; j++){
             A_data[i][j] = i + j;
         }
     }
-    double** B_data = (double**)malloc(sizeof(double*) * 3);
+    float** B_data = (float**)malloc(sizeof(float*) * 3);
     for (i = 0; i < 3; i++){
-        B_data[i] = (double*)malloc(sizeof(double) * 3);
+        B_data[i] = (float*)malloc(sizeof(float) * 3);
         for (j = 0; j < 3; j++){
             B_data[i][j] = i + j;
         }
@@ -47,8 +47,8 @@ int main(){
     assert(crossEntropyLoss(NULL, predictM, actual, 0) <= 0.001);
 
     // test prediction
-    double** predict_data = (double**)malloc(sizeof(double*) * 1);
-    predict_data[0] = (double*)malloc(sizeof(double) * 5);
+    float** predict_data = (float**)malloc(sizeof(float*) * 1);
+    predict_data[0] = (float*)malloc(sizeof(float) * 5);
     predict_data[0][0] = 0.1;
     predict_data[0][1] = 0.2;
     predict_data[0][2] = 0.7;

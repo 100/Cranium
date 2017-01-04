@@ -4,7 +4,7 @@
 
 int main(){
     // test sigmoid
-    double k;
+    float k;
     for (k = -10.0; k < 30.0; k += 2){
         assert(sigmoidFunc(k) >= 0 && sigmoidFunc(k) <= 1);
     }
@@ -15,18 +15,18 @@ int main(){
     }
 
     // test softmax
-    double** row = (double**)malloc(sizeof(double*));
-    row[0] = (double*)malloc(sizeof(double) * 10);
+    float** row = (float**)malloc(sizeof(float*));
+    row[0] = (float*)malloc(sizeof(float) * 10);
     int j;
     for (j = 0; j < 10; j++){
-        row[0][j] = exp(j/2);
+        row[0][j] = expf(j/2);
         if (j % 2 == 0){
             row[0][j] *= -1;
         }
     }
     Matrix* rowMatrix = createMatrix(1, 10, row);
     softmax(rowMatrix);
-    double sum = 0;
+    float sum = 0;
     for (j = 0; j < 10; j++){
         assert(rowMatrix->data[0][j] >= 0 && rowMatrix->data[0][j] <= 1);
         sum += rowMatrix->data[0][j];

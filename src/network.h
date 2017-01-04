@@ -27,7 +27,7 @@ void forwardPass(Network* network, Matrix* input);
 
 // calculate the cross entropy loss between two datasets with 
 // optional regularization (must provide network if using regularization)
-double crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, double regularizationStrength);
+float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
 
 // returns indices corresponding to highest-probability classes for each
 // example previously inputted
@@ -35,7 +35,7 @@ double crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, do
 int* predict(Network* network);
 
 // return accuracy (num_correct / num_total) of network on predictions
-double accuracy(Network* network, Matrix* data, Matrix* classes);
+float accuracy(Network* network, Matrix* data, Matrix* classes);
 
 // frees network, its layers, and its connections
 void destroyNetwork(Network* network);
@@ -102,19 +102,19 @@ void forwardPass(Network* network, Matrix* input){
 }
 
 // matrixes of size [num examples] x [num classes]
-double crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, double regularizationStrength){
+float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength){
     assert(prediction->rows == actual->rows);
     assert(prediction->cols == actual->cols);
-    double total_err = 0;
+    float total_err = 0;
     int i, j, k;
     for (i = 0; i < prediction->rows; i++){
-        double cur_err = 0;
+        float cur_err = 0;
         for (j = 0; j < prediction->cols; j++){
-            cur_err += actual->data[i][j] * log(MAX(DBL_MIN, prediction->data[i][j]));
+            cur_err += actual->data[i][j] * logf(MAX(FLT_MIN, prediction->data[i][j]));
         }
         total_err += cur_err;
     }
-    double reg_err = 0;
+    float reg_err = 0;
     if (network != NULL){
         for (i = 0; i < network->numConnections; i++){
             Matrix* weights = network->connections[i]->weights;
@@ -144,12 +144,12 @@ int* predict(Network* network){
     return predictions;
 }
 
-double accuracy(Network* network, Matrix* data, Matrix* classes){
+float accuracy(Network* network, Matrix* data, Matrix* classes){
     assert(data->rows == classes->rows);
     assert(data->cols == network->layers[network->numLayers - 1]->size);
     forwardPass(network, data);
     int* predictions = predict(network);
-    double numCorrect = 0;
+    float numCorrect = 0;
     int i;
     for (i = 0; i < data->rows; i++){
         if (classes->data[i][predictions[i]] == 1){
@@ -209,7 +209,7 @@ void saveNetwork(Network* network, char* path){
         Connection* con = network->connections[k];
         for (i = 0; i < con->weights->rows; i++){
             for (j = 0; j < con->weights->cols; j++){
-                fprintf(fp, "%la\n", con->weights->data[i][j]);
+                fprintf(fp, "%a\n", con->weights->data[i][j]);
             }
         }
     }
@@ -218,7 +218,7 @@ void saveNetwork(Network* network, char* path){
     for (k = 0; k < network->numConnections; k++){
         Connection* con = network->connections[k];
         for (i = 0; i < con->bias->cols; i++){
-            fprintf(fp, "%la\n", con->bias->data[0][i]);
+            fprintf(fp, "%a\n", con->bias->data[0][i]);
         }
     }
 
@@ -292,7 +292,7 @@ Network* readNetwork(char* path){
         for (i = 0; i < con->weights->rows; i++){
             for (j = 0; j < con->weights->cols; j++){
                 fgets(buf, 50, fp);
-                sscanf(buf, "%la", &con->weights->data[i][j]);
+                sscanf(buf, "%a", &con->weights->data[i][j]);
                 memset(&buf[0], 0, 50);
             }
         }
@@ -303,7 +303,7 @@ Network* readNetwork(char* path){
         Connection* con = network->connections[k];
         for (i = 0; i < con->bias->cols; i++){
             fgets(buf, 50, fp);
-            sscanf(buf, "%la", &con->bias->data[0][i]);
+            sscanf(buf, "%a", &con->bias->data[0][i]);
             memset(&buf[0], 0, 50);
         }
     }

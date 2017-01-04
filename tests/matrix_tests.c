@@ -2,18 +2,18 @@
 #include "../src/matrix.h"
 
 int main(){
-    double** A_data = (double**)malloc(sizeof(double*) * 3);
+    float** A_data = (float**)malloc(sizeof(float*) * 3);
     int i, j;
     for (i = 0; i < 3; i++){
-        A_data[i] = (double*)malloc(sizeof(double) * 3);
+        A_data[i] = (float*)malloc(sizeof(float) * 3);
         for (j = 0; j < 3; j++){
             A_data[i][j] = i + j;
         }
     }
 
-    double** B_data = (double**)malloc(sizeof(double*) * 3);
+    float** B_data = (float**)malloc(sizeof(float*) * 3);
     for (i = 0; i < 3; i++){
-        B_data[i] = (double*)malloc(sizeof(double) * 4);
+        B_data[i] = (float*)malloc(sizeof(float) * 4);
         for (j = 0; j < 4; j++){
             B_data[i][j] = i + j;
         }
@@ -24,9 +24,9 @@ int main(){
     Matrix* B = createMatrix(3, 4, B_data);
 
     // test batch creation
-    double** C_data = (double**)malloc(sizeof(double*) * 20);
+    float** C_data = (float**)malloc(sizeof(float*) * 20);
     for (i = 0; i < 20; i++){
-        C_data[i] = (double*)malloc(sizeof(double) * 2);
+        C_data[i] = (float*)malloc(sizeof(float) * 2);
         for (j = 0; j < 2; j++){
             C_data[i][j] = 2;
         }
