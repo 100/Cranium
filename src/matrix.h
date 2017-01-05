@@ -66,11 +66,14 @@ Matrix* hadamard(Matrix* A, Matrix* B);
 // places values of hadamard product of $A and $B into $into
 void hadamardInto(Matrix* A, Matrix* B, Matrix* into);
 
-// returns a copy of input matrix
+// returns a shallow copy of input matrix
 Matrix* copy(Matrix* orig);
 
 // returns 1 if matrices are equal, 0 otherwise
 int equals(Matrix* A, Matrix* B);
+
+// shuffle two matrices, maintaining alignment between their rows
+void shuffleTogether(Matrix* A, Matrix* B);
 
 // frees a matrix and its data
 void destroyMatrix(Matrix* matrix);
@@ -331,6 +334,20 @@ int equals(Matrix* A, Matrix* B){
         }
     }
     return 1;
+}
+
+void shuffleTogether(Matrix* A, Matrix* B){
+    assert(A->rows == B->rows);
+    int i;
+    for (i = 0; i < A->rows - 1; i++){
+        size_t j = i + rand() / (RAND_MAX / (A->rows - i) + 1);
+        float* tmpA = A->data[j];
+        A->data[j] = A->data[i];
+        A->data[i] = tmpA;
+        float* tmpB = B->data[j];
+        B->data[j] = B->data[i];
+        B->data[i] = tmpB;
+    }
 }
 
 void destroyMatrix(Matrix* matrix){

@@ -33,7 +33,7 @@ int main(){
     classes[0][1] = 1;
     Matrix* classR = createMatrix(1, 2, classes);
 
-    batchGradientDescent(network, dataR, classR, 1, 0, 0, 0, 1, 1);
+    batchGradientDescent(network, dataR, classR, CROSS_ENTROPY_LOSS, dataR->rows, 1, 0, 0, 0, 1, 0, 1);
     assert(network->connections[1]->weights->data[0][0] <= -.04 &&  network->connections[1]->weights->data[0][0] >= -.05);
     assert(network->connections[1]->weights->data[0][1] >= 1.29 &&  network->connections[1]->weights->data[0][1] <= 1.30);
     assert(network->connections[1]->weights->data[1][0] <= -.84 &&  network->connections[1]->weights->data[1][0] >= -.85);
@@ -74,8 +74,9 @@ int main(){
     void (*hiddenActivations2[])(Matrix*) = {tanH};
     Network* network2 = createNetwork(2, 1, hiddenSize2, hiddenActivations2, 2, softmax);
 
+    printf("\nTESTING ON XOR:\n");
     printf("Starting accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
-    batchGradientDescent(network2, trainingData, trainingClasses, .3, 0, .01, .5, 1000, 1);
+    batchGradientDescent(network2, trainingData, trainingClasses, CROSS_ENTROPY_LOSS, trainingData->rows, .3, 0, .01, .9, 1000, 1, 1);
     printf("Final accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
 
     // test on above or below y=x^2 [x y ordering] [below above ordering]
@@ -98,8 +99,9 @@ int main(){
     void (*hiddenActivationsF[])(Matrix*) = {tanH};
     Network* networkF = createNetwork(2, 1, hiddenSizeF, hiddenActivationsF, 2, softmax);
 
+    printf("\nTESTING ON PARABOLA:\n");
     printf("Starting accuracy of %f\n", accuracy(networkF, trainingDataF, trainingClassesF));
-    batchGradientDescent(networkF, trainingDataF, trainingClassesF, .01, 0, .01, .5, 1000, 1);
+    batchGradientDescent(networkF, trainingDataF, trainingClassesF, CROSS_ENTROPY_LOSS, 20, .01, 0, .01, .5, 1000, 1, 1);
     printf("Final accuracy of %f\n", accuracy(networkF, trainingDataF, trainingClassesF));
     
     destroyMatrix(trainingData);
