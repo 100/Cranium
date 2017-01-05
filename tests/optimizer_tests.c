@@ -77,10 +77,37 @@ int main(){
     printf("Starting accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
     batchGradientDescent(network2, trainingData, trainingClasses, .3, 0, .01, .5, 1000, 1);
     printf("Final accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
+
+    // test on above or below y=x^2 [x y ordering] [below above ordering]
+    float** dataF = (float**)malloc(sizeof(float*) * 500);
+    for (i = 0; i < 500; i++){
+        dataF[i] = (float*)malloc(sizeof(float) * 2);
+        dataF[i][0] = 1.0 * (i + 1) * (rand() % 50);
+        dataF[i][1] = 1.0 * (i + 1) * (rand() % 50);
+    }
+    Matrix* trainingDataF = createMatrix(500, 2, dataF);
+    float** classesF = (float**)malloc(sizeof(float*) * 500);
+    for (i = 0; i < 500; i++){
+        classesF[i] = (float*)malloc(sizeof(float) * 2);
+        classesF[i][0] = dataF[i][0] * dataF[i][0] <= dataF[i][1] ? 1 : 0;
+        classesF[i][1] = classesF[i][0] == 1 ? 0 : 1;
+    }
+    Matrix* trainingClassesF = createMatrix(500, 2, classesF);
+
+    int hiddenSizeF[] = {3};
+    void (*hiddenActivationsF[])(Matrix*) = {tanH};
+    Network* networkF = createNetwork(2, 1, hiddenSizeF, hiddenActivationsF, 2, softmax);
+
+    printf("Starting accuracy of %f\n", accuracy(networkF, trainingDataF, trainingClassesF));
+    batchGradientDescent(networkF, trainingDataF, trainingClassesF, .01, 0, .01, .5, 1000, 1);
+    printf("Final accuracy of %f\n", accuracy(networkF, trainingDataF, trainingClassesF));
     
     destroyMatrix(trainingData);
     destroyMatrix(trainingClasses);
     destroyNetwork(network2);
+    destroyMatrix(trainingDataF);
+    destroyMatrix(trainingClassesF);
+    destroyNetwork(networkF);
 
     return 0;
 }
