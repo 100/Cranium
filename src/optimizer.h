@@ -8,14 +8,23 @@
 #define OPTIMIZER_H
 
 // batch gradient descent
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float learningRate, float regularizationStrength, int maxIters, int verbose);
+// $network is the network to be trained
+// $data is the training data
+// $classes are the true values for each data point in $data, in order
+// $learningRate is the initial learning rate
+// $searchTime is the other parameter in the search-and-converge method
+// $regularizationStrength is the multiplier for L2 regularization
+// $momentumFactor is the multiplier for the moment factor
+// $maxIters is the number of epochs to run the algorithm for
+// $verbose, if non-zero, will print loss every 100 epochs
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int verbose);
 
 
 /*
     Begin functions.
 */
 
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float learningRate, float regularizationStrength, int maxIters, int verbose){
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int verbose){
     assert(network->layers[0]->size == data->cols);
     assert(data->rows == classes->rows);
     assert(network->layers[network->numLayers - 1]->size == classes->cols);
@@ -59,9 +68,13 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float
     // these will be reused per epoch
     Matrix* dWi_avg[network->numConnections];
     Matrix* dbi_avg[network->numConnections];
+    Matrix* dWi_last[network->numConnections];
+    Matrix* dbi_last[network->numConnections];
     for (i = 0; i < network->numConnections; i++){
         dWi_avg[i] = createMatrixZeroes(network->connections[i]->weights->rows, network->connections[i]->weights->cols);
         dbi_avg[i] = createMatrixZeroes(1, network->connections[i]->bias->cols);
+        dWi_last[i] = createMatrixZeroes(network->connections[i]->weights->rows, network->connections[i]->weights->cols);
+        dbi_last[i] = createMatrixZeroes(1, network->connections[i]->bias->cols);
     }
 
     for (epoch = 1; epoch <= maxIters; epoch++){
@@ -98,17 +111,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float
                     transposeInto(network->connections[layer]->weights, WTi[hiddenLayer]);
                     multiplyInto(errori[layer + 1], WTi[hiddenLayer], errorLastTi[hiddenLayer]);
                     copyValuesInto(con->to->input, fprimei[hiddenLayer]);
-                    float (*derivative)(float);
-                    // identify appropriate derivative
-                    if (con->to->activation == sigmoid){
-                        derivative = sigmoidDeriv;
-                    }
-                    else if (con->to->activation == relu){
-                        derivative = reluDeriv;
-                    }
-                    else{
-                        derivative = tanHDeriv;
-                    }
+                    float (*derivative)(float) = activationDerivative(con->to->activation);
                     for (j = 0; j < fprimei[hiddenLayer]->cols; j++){
                         fprimei[hiddenLayer]->data[0][j] = derivative(fprimei[hiddenLayer]->data[0][j]);
                     }
@@ -143,10 +146,14 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float
                 }
             }
         }
-        // average out gradients
+
+        // calculate learning rate for this epoch
+        float currentLearningRate = searchTime == 0 ? learningRate : learningRate / (1 + (epoch / searchTime));
+        
+        // average out gradients and add learning rate
         for (i = 0; i < network->numConnections; i++){
-            scalarMultiply(dWi_avg[i], 1.0 / data->rows);
-            scalarMultiply(dbi_avg[i], 1.0 / data->rows);
+            scalarMultiply(dWi_avg[i], currentLearningRate / data->rows);
+            scalarMultiply(dbi_avg[i], currentLearningRate / data->rows);
         }
 
         // add regularization
@@ -156,12 +163,29 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float
             addTo(regi[i], dWi_avg[i]);
         }
 
+        // add momentum
+        for (i = 0; i < network->numConnections; i++){
+            scalarMultiply(dWi_last[i], momentumFactor);
+            scalarMultiply(dbi_last[i], momentumFactor);
+            addTo(dWi_last[i], dWi_avg[i]);
+            addTo(dbi_last[i], dbi_avg[i]);
+        }
+
         // adjust weights and bias
         for (i = 0; i < network->numConnections; i++){
             scalarMultiply(dWi_avg[i], -1);
             scalarMultiply(dbi_avg[i], -1);
             addTo(dWi_avg[i], network->connections[i]->weights);
             addTo(dbi_avg[i], network->connections[i]->bias);
+        }
+
+        // cache weight and bias updates for momentum
+        for (i = 0; i < network->numConnections; i++){
+            copyValuesInto(dWi_avg[i], dWi_last[i]);
+            copyValuesInto(dbi_avg[i], dbi_last[i]);
+            // make positive again for next epoch
+            scalarMultiply(dWi_last[i], -1);
+            scalarMultiply(dbi_last[i], -1);
         }
 
         // zero out reusable average matrices and regularization matrices
@@ -191,6 +215,8 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, float
     for (i = 0; i < network->numConnections; i++){
         destroyMatrix(dWi_avg[i]);
         destroyMatrix(dbi_avg[i]);
+        destroyMatrix(dWi_last[i]);
+        destroyMatrix(dbi_last[i]);
         destroyMatrix(regi[i]);
     }
 

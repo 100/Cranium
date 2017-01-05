@@ -4,6 +4,8 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+typedef void (*Activation)(Matrix*);
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
@@ -39,6 +41,15 @@ void softmax(Matrix* input);
 
 // sample from the unit guassian distribution (mean = 0, variance = 1)
 float box_muller();
+
+// return the string representation of activation function
+const char* getFunctionName(Activation func);
+
+// return the activation function corresponding to a name
+Activation getFunctionByName(const char* name);
+
+// return derivative of activation function
+float (*activationDerivative(Activation func))(float);
 
 
 /*
@@ -132,6 +143,48 @@ float box_muller(){
     z0 = sqrt(-2.0 * logf(u1)) * cos(two_pi * u2);
     z1 = sqrt(-2.0 * logf(u1)) * sin(two_pi * u2);
     return z0;
+}
+
+const char* getFunctionName(Activation func){
+    if (func == sigmoid){
+        return "sigmoid";
+    }
+    else if (func == relu){
+        return "relu";
+    }
+    else if (func == tanH){
+        return "tanH";
+    }
+    else{
+        return "softmax";
+    }
+}
+
+Activation getFunctionByName(const char* name){
+    if (strcmp(name, "sigmoid") == 0){
+        return sigmoid;
+    }
+    else if (strcmp(name, "relu") == 0){
+        return relu;
+    }
+    else if (strcmp(name, "tanH") == 0){
+        return tanH;
+    }
+    else{
+        return softmax;
+    }
+}
+
+float (*activationDerivative(Activation func))(float){
+    if (func == sigmoid){
+        return sigmoidDeriv;
+    }
+    else if (func == relu){
+        return reluDeriv;
+    }
+    else{
+        return tanHDeriv;
+    }
 }
 
 #endif

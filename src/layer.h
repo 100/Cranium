@@ -5,8 +5,6 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-typedef void (*Activation)(Matrix*);
-
 typedef enum LAYER_TYPE_ {
     INPUT,
     HIDDEN,

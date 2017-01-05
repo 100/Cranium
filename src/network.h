@@ -18,7 +18,7 @@ typedef struct Network_ {
 // of the ith hidden layer
 // hiddenActivations is an array of activation functions,
 // where hiddenActivations[i] is the function of the ith hidden layer
-Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numClasses, void (*outputActivation)(Matrix*));
+Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numOutputs, void (*outputActivation)(Matrix*));
 
 // will propagate input through entire network
 // result will be stored in input field of last layer
@@ -51,8 +51,8 @@ Network* readNetwork(char* path);
     Begin functions.
 */
 
-Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numClasses, void (*outputActivation)(Matrix*)){
-    assert(numFeatures > 0 && numHiddenLayers >= 0 && numClasses > 0);
+Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numOutputs, void (*outputActivation)(Matrix*)){
+    assert(numFeatures > 0 && numHiddenLayers >= 0 && numOutputs > 0);
     Network* network = (Network*)malloc(sizeof(Network));
     
     network->numLayers = 2 + numHiddenLayers;
@@ -65,7 +65,7 @@ Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, v
         }
         //create output
         else if (i == network->numLayers - 1){
-            layers[i] = createLayer(OUTPUT, numClasses, outputActivation);
+            layers[i] = createLayer(OUTPUT, numOutputs, outputActivation);
         }
         // create hidden layer
         else{
@@ -186,22 +186,9 @@ void saveNetwork(Network* network, char* path){
         fprintf(fp, "%d\n", network->layers[i]->size);
     }
 
-    // serialize hidden functions
-    for (i = 0; i < network->numLayers - 2; i++){
-        if (network->layers[1 + i]->activation == sigmoid){
-            fprintf(fp, "sigmoid\n");
-        }
-        else if (network->layers[1 + i]->activation == relu){
-            fprintf(fp, "relu\n");
-        }
-        else{
-            fprintf(fp, "tanH\n");
-        }
-    }
-
-    // serialize output function
-    if (network->layers[network->numLayers - 1]->activation == softmax){
-        fprintf(fp, "softmax\n");
+    // serialize all activation functions
+    for (i = 0; i < network->numLayers - 1; i++){
+        fprintf(fp, "%s\n", getFunctionName(network->layers[i + 1]->activation));
     }
 
     // serialize weights in row-major ordering
@@ -250,18 +237,7 @@ Network* readNetwork(char* path){
     for (i = 0; i < numLayers - 1; i++){
         fgets(buf, 50, fp);
         sscanf(buf, "%s", funcString);
-        if (strcmp(funcString, "sigmoid") == 0){
-            funcs[i] = sigmoid;
-        }
-        else if (strcmp(funcString, "relu") == 0){
-            funcs[i] = relu;
-        }
-        else if (strcmp(funcString, "tanH") == 0){
-            funcs[i] = tanH;
-        }
-        else{
-            funcs[i] = softmax;
-        }
+        funcs[i] = getFunctionByName(funcString);
         memset(&buf[0], 0, 50);
     }
 

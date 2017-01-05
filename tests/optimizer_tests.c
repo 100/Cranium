@@ -33,7 +33,7 @@ int main(){
     classes[0][1] = 1;
     Matrix* classR = createMatrix(1, 2, classes);
 
-    batchGradientDescent(network, dataR, classR, 1, 0, 1, 1);
+    batchGradientDescent(network, dataR, classR, 1, 0, 0, 0, 1, 1);
     assert(network->connections[1]->weights->data[0][0] <= -.04 &&  network->connections[1]->weights->data[0][0] >= -.05);
     assert(network->connections[1]->weights->data[0][1] >= 1.29 &&  network->connections[1]->weights->data[0][1] <= 1.30);
     assert(network->connections[1]->weights->data[1][0] <= -.84 &&  network->connections[1]->weights->data[1][0] >= -.85);
@@ -75,7 +75,7 @@ int main(){
     Network* network2 = createNetwork(2, 1, hiddenSize2, hiddenActivations2, 2, softmax);
 
     printf("Starting accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
-    batchGradientDescent(network2, trainingData, trainingClasses, .1, .01, 1000, 1);
+    batchGradientDescent(network2, trainingData, trainingClasses, .3, 0, .01, .5, 1000, 1);
     printf("Final accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
     
     destroyMatrix(trainingData);
