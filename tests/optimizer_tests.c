@@ -79,20 +79,20 @@ int main(){
     printf("Final accuracy of %f\n", accuracy(network2, trainingData, trainingClasses));
 
     // test on above or below y=x^2 [x y ordering] [below above ordering]
-    float** dataF = (float**)malloc(sizeof(float*) * 500);
-    for (i = 0; i < 500; i++){
+    float** dataF = (float**)malloc(sizeof(float*) * 100);
+    for (i = 0; i < 100; i++){
         dataF[i] = (float*)malloc(sizeof(float) * 2);
         dataF[i][0] = 1.0 * (i + 1) * (rand() % 50);
         dataF[i][1] = 1.0 * (i + 1) * (rand() % 50);
     }
-    Matrix* trainingDataF = createMatrix(500, 2, dataF);
-    float** classesF = (float**)malloc(sizeof(float*) * 500);
-    for (i = 0; i < 500; i++){
+    Matrix* trainingDataF = createMatrix(100, 2, dataF);
+    float** classesF = (float**)malloc(sizeof(float*) * 100);
+    for (i = 0; i < 100; i++){
         classesF[i] = (float*)malloc(sizeof(float) * 2);
         classesF[i][0] = dataF[i][0] * dataF[i][0] <= dataF[i][1] ? 1 : 0;
         classesF[i][1] = classesF[i][0] == 1 ? 0 : 1;
     }
-    Matrix* trainingClassesF = createMatrix(500, 2, classesF);
+    Matrix* trainingClassesF = createMatrix(100, 2, classesF);
 
     int hiddenSizeF[] = {3};
     void (*hiddenActivationsF[])(Matrix*) = {tanH};
