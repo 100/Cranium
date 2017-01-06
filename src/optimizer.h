@@ -7,11 +7,13 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+// types of loss functions available to optimize under
 typedef enum LOSS_FUNCTION_ {
     CROSS_ENTROPY_LOSS, 
     MEAN_SQUARED_ERROR
 } LOSS_FUNCTION;
 
+// convenience struct for easier parameter filling
 typedef struct ParameterSet_ {
     Network* network;
     Matrix* data;

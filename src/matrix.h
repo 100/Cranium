@@ -3,6 +3,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+// represents a matrix of data
 typedef struct Matrix_ {
     size_t rows;
     size_t cols;

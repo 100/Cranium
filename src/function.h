@@ -6,7 +6,6 @@
 
 typedef void (*Activation)(Matrix*);
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 // raw sigmoid function
@@ -41,6 +40,9 @@ void softmax(Matrix* input);
 
 // applies linear function to each row of $input
 void linear(Matrix* input);
+
+// derivative of linear function given output of linear
+float linearDeriv(float linearInput);
 
 // sample from the unit guassian distribution (mean = 0, variance = 1)
 float box_muller();
@@ -131,6 +133,10 @@ void softmax(Matrix* input){
 // operates on each row
 void linear(Matrix* input){}
 
+float linearDeriv(float linearInput){
+    return 1;
+}
+
 // adapted from wikipedia
 float box_muller(){
     const float epsilon = FLT_MIN;
@@ -161,8 +167,11 @@ const char* getFunctionName(Activation func){
     else if (func == tanH){
         return "tanH";
     }
-    else{
+    else if (func == softmax){
         return "softmax";
+    }
+    else{
+        return "linear";
     }
 }
 
@@ -176,8 +185,11 @@ Activation getFunctionByName(const char* name){
     else if (strcmp(name, "tanH") == 0){
         return tanH;
     }
-    else{
+    else if (strcmp(name, "softmax") == 0){
         return softmax;
+    }
+    else{
+        return linear;
     }
 }
 
@@ -188,8 +200,11 @@ float (*activationDerivative(Activation func))(float){
     else if (func == relu){
         return reluDeriv;
     }
-    else{
+    else if (func == tanH){
         return tanHDeriv;
+    }
+    else{
+        return linearDeriv;
     }
 }
 

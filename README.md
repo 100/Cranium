@@ -8,4 +8,5 @@ A portable, header-only, neural network framework written in C
 * L2 Regularization
 * Learning rate annealing
 * Momentum
+* Fan-in weight initialization
 * Serializable network

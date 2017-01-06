@@ -5,6 +5,7 @@
 #ifndef LAYER_H
 #define LAYER_H
 
+// possible types of layers in a network
 typedef enum LAYER_TYPE_ {
     INPUT,
     HIDDEN,
@@ -22,6 +23,7 @@ typedef struct Layer_ {
     Matrix* input; // (num_examples x size)
 } Layer;
 
+// represents a link between two layers
 typedef struct Connection_ {
     Layer* from;
     Layer* to;

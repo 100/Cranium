@@ -6,6 +6,7 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+// represents a network as a composition of layers and connections
 typedef struct Network_ {
     size_t numLayers;
     Layer** layers;
