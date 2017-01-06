@@ -6,7 +6,7 @@
 
 int main(){
     // test network creation
-    int hiddenSize[] = {3, 5};
+    size_t hiddenSize[] = {3, 5};
     void (*hiddenActivations[])(Matrix*) = {sigmoid, relu};
     Network* network = createNetwork(5, 2, hiddenSize, hiddenActivations, 4, softmax);
     assert(network->numLayers == 4 && network->numConnections == 3); 

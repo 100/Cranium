@@ -4,8 +4,8 @@
 #define MATRIX_H
 
 typedef struct Matrix_ {
-    int rows;
-    int cols;
+    size_t rows;
+    size_t cols;
     float** data;
 } Matrix;
 
@@ -19,7 +19,7 @@ typedef struct Matrix_ {
 */
 
 // creates a matrix given data
-Matrix* createMatrix(int rows, int cols, float** data);
+Matrix* createMatrix(size_t rows, size_t cols, float** data);
 
 // uses memory of the original data to split matrix into submatrices
 Matrix** createBatches(Matrix* allData, int numBatches);
@@ -83,7 +83,7 @@ void destroyMatrix(Matrix* matrix);
     Begin functions.
 */
 
-Matrix* createMatrix(int rows, int cols, float** data){
+Matrix* createMatrix(size_t rows, size_t cols, float** data){
     assert(rows > 0 && cols > 0);
     Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
     matrix->rows = rows;
@@ -112,7 +112,7 @@ Matrix** createBatches(Matrix* allData, int numBatches){
     int i;
     int curRow = 0;
     for (i = 0; i < numBatches; i++){
-        int batchSize = allData->rows / numBatches;
+        size_t batchSize = allData->rows / numBatches;
         if (remainder-- > 0){
             batchSize++;
         }

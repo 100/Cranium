@@ -12,6 +12,21 @@ typedef enum LOSS_FUNCTION_ {
     MEAN_SQUARED_ERROR
 } LOSS_FUNCTION;
 
+typedef struct ParameterSet_ {
+    Network* network;
+    Matrix* data;
+    Matrix* classes;
+    LOSS_FUNCTION lossFunction;
+    size_t batchSize;
+    float learningRate;
+    float searchTime;
+    float regularizationStrength;
+    float momentumFactor;
+    int maxIters;
+    int shuffle;
+    int verbose;
+} ParameterSet;
+
 // batch gradient descent main function
 // $network is the network to be trained
 // $data is the training data
@@ -24,14 +39,19 @@ typedef enum LOSS_FUNCTION_ {
 // $maxIters is the number of epochs to run the algorithm for
 // $shuffle, if non-zero, will shuffle the data between iterations
 // $verbose, if non-zero, will print loss every 100 epochs
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_FUNCTION lossFunction, int batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle, int verbose);
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_FUNCTION lossFunction, size_t batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle, int verbose);
+
+// optimizes given parameters
+void optimize(ParameterSet params){
+    batchGradientDescent(params.network, params.data, params.classes, params.lossFunction, params.batchSize, params.learningRate, params.searchTime, params.regularizationStrength, params.momentumFactor, params.maxIters, params.shuffle, params.verbose);
+}
 
 
 /*
     Begin functions.
 */
 
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_FUNCTION lossFunction, int batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle,  int verbose){
+void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_FUNCTION lossFunction, size_t batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle,  int verbose){
     assert(network->layers[0]->size == data->cols);
     assert(data->rows == classes->rows);
     assert(network->layers[network->numLayers - 1]->size == classes->cols);

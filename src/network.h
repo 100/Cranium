@@ -7,9 +7,9 @@
 #define NETWORK_H
 
 typedef struct Network_ {
-    int numLayers;
+    size_t numLayers;
     Layer** layers;
-    int numConnections;
+    size_t numConnections;
     Connection** connections;
 } Network;
 
@@ -18,7 +18,7 @@ typedef struct Network_ {
 // of the ith hidden layer
 // hiddenActivations is an array of activation functions,
 // where hiddenActivations[i] is the function of the ith hidden layer
-Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numOutputs, void (*outputActivation)(Matrix*));
+Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, void (**hiddenActivations)(Matrix*), size_t numOutputs, void (*outputActivation)(Matrix*));
 
 // will propagate input through entire network
 // result will be stored in input field of last layer
@@ -57,7 +57,7 @@ Network* readNetwork(char* path);
     Begin functions.
 */
 
-Network* createNetwork(int numFeatures, int numHiddenLayers, int* hiddenSizes, void (**hiddenActivations)(Matrix*), int numOutputs, void (*outputActivation)(Matrix*)){
+Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, void (**hiddenActivations)(Matrix*), size_t numOutputs, void (*outputActivation)(Matrix*)){
     assert(numFeatures > 0 && numHiddenLayers >= 0 && numOutputs > 0);
     Network* network = (Network*)malloc(sizeof(Network));
     
@@ -214,11 +214,11 @@ void saveNetwork(Network* network, char* path){
     int i, j, k;
 
     // serialize number of layers
-    fprintf(fp, "%d\n", network->numLayers);
+    fprintf(fp, "%zu\n", network->numLayers);
 
     // serialize layer sizes
     for (i = 0; i < network->numLayers; i++){
-        fprintf(fp, "%d\n", network->layers[i]->size);
+        fprintf(fp, "%zu\n", network->layers[i]->size);
     }
 
     // serialize all activation functions
@@ -253,16 +253,16 @@ Network* readNetwork(char* path){
     char buf[50];
 
     // get number of layers
-    int numLayers;
+    size_t numLayers;
     fgets(buf, 50, fp);
-    sscanf(buf, "%d", &numLayers);
+    sscanf(buf, "%zu", &numLayers);
     memset(&buf[0], 0, 50);
 
     // get layer sizes
-    int layerSizes[numLayers];
+    size_t layerSizes[numLayers];
     for (i = 0; i < numLayers; i++){
         fgets(buf, 50, fp);
-        sscanf(buf, "%d", &layerSizes[i]);
+        sscanf(buf, "%zu", &layerSizes[i]);
         memset(&buf[0], 0, 50);
     }
 
@@ -278,12 +278,12 @@ Network* readNetwork(char* path){
 
     // construct network structure
     Network* network;
-    int inputSize = layerSizes[0];
-    int outputSize = layerSizes[numLayers - 1];
-    int numHiddenLayers = numLayers - 2;
+    size_t inputSize = layerSizes[0];
+    size_t outputSize = layerSizes[numLayers - 1];
+    size_t numHiddenLayers = numLayers - 2;
     Activation outputFunc = funcs[numLayers - 2];
     if (numHiddenLayers > 0){
-        int hiddenSizes[numLayers - 2];
+        size_t hiddenSizes[numLayers - 2];
         for (i = 0; i < numLayers - 2; i++){
             hiddenSizes[i] = layerSizes[1 + i];
         }

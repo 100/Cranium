@@ -7,7 +7,7 @@
 
 int main(){
     // test backpropagation correctness
-    int hiddenSize[] = {2};
+    size_t hiddenSize[] = {2};
     void (*hiddenActivations[])(Matrix*) = {sigmoid};
     Network* network = createNetwork(2, 1, hiddenSize, hiddenActivations, 2, softmax);
     float** data = (float**)malloc(sizeof(float*) * 1);
@@ -70,7 +70,7 @@ int main(){
     }
     Matrix* trainingClasses = createMatrix(4, 2, classes);
 
-    int hiddenSize2[] = {3};
+    size_t hiddenSize2[] = {3};
     void (*hiddenActivations2[])(Matrix*) = {tanH};
     Network* network2 = createNetwork(2, 1, hiddenSize2, hiddenActivations2, 2, softmax);
 
@@ -95,7 +95,7 @@ int main(){
     }
     Matrix* trainingClassesF = createMatrix(100, 2, classesF);
 
-    int hiddenSizeF[] = {3};
+    size_t hiddenSizeF[] = {3};
     void (*hiddenActivationsF[])(Matrix*) = {tanH};
     Network* networkF = createNetwork(2, 1, hiddenSizeF, hiddenActivationsF, 2, softmax);
 
@@ -118,7 +118,7 @@ int main(){
     }
     Matrix* trainingClassesReg = createMatrix(1000, 1, classesReg);
 
-    int hiddenSizeReg[] = {20};
+    size_t hiddenSizeReg[] = {20};
     void (*hiddenActivationsReg[])(Matrix*) = {relu};
     Network* networkReg = createNetwork(1, 1, hiddenSizeReg, hiddenActivationsReg, 1, linear);
     
@@ -132,6 +132,10 @@ int main(){
     batchGradientDescent(networkReg, trainingDataReg, trainingClassesReg, MEAN_SQUARED_ERROR, 20, .01, 0, .001, .9, 500, 1, 1);
     forwardPass(networkReg, oneExData);
     printf("After training maps 5 to %f but should map to 40\n", networkReg->layers[networkReg->numLayers - 1]->input->data[0][0]);
+
+    // test parameter set
+    ParameterSet params = {networkReg, trainingDataReg, trainingClassesReg, MEAN_SQUARED_ERROR, 20, .01, 0, .001, .9, 200, 1, 1};
+    optimize(params);
     
     destroyMatrix(trainingData);
     destroyMatrix(trainingClasses);
