@@ -103,6 +103,35 @@ int main(){
     printf("Starting accuracy of %f\n", accuracy(networkF, trainingDataF, trainingClassesF));
     batchGradientDescent(networkF, trainingDataF, trainingClassesF, CROSS_ENTROPY_LOSS, 20, .01, 0, .01, .5, 1000, 1, 1);
     printf("Final accuracy of %f\n", accuracy(networkF, trainingDataF, trainingClassesF));
+
+    // test on regression on y=x^2 + 15
+    float** dataReg = (float**)malloc(sizeof(float*) * 1000);
+    for (i = 0; i < 1000; i++){
+        dataReg[i] = (float*)malloc(sizeof(float) * 1);
+        dataReg[i][0] = rand() % 20;
+    }
+    Matrix* trainingDataReg = createMatrix(1000, 1, dataReg);
+    float** classesReg = (float**)malloc(sizeof(float*) * 1000);
+    for (i = 0; i < 1000; i++){
+        classesReg[i] = (float*)malloc(sizeof(float) * 1);
+        classesReg[i][0] = dataReg[i][0] * dataReg[i][0] + 15;
+    }
+    Matrix* trainingClassesReg = createMatrix(1000, 1, classesReg);
+
+    int hiddenSizeReg[] = {20};
+    void (*hiddenActivationsReg[])(Matrix*) = {relu};
+    Network* networkReg = createNetwork(1, 1, hiddenSizeReg, hiddenActivationsReg, 1, linear);
+    
+    printf("\nTESTING ON PARABOLA REGRESSION:\n");
+    float** oneEx = (float**)malloc(sizeof(float*));
+    oneEx[0] = (float*)malloc(sizeof(float));
+    oneEx[0][0] = 5.0;
+    Matrix* oneExData = createMatrix(1, 1, oneEx);
+    forwardPass(networkReg, oneExData);
+    printf("Initially maps 5 to %f but should map to 40\n", networkReg->layers[networkReg->numLayers - 1]->input->data[0][0]);
+    batchGradientDescent(networkReg, trainingDataReg, trainingClassesReg, MEAN_SQUARED_ERROR, 20, .01, 0, .001, .9, 500, 1, 1);
+    forwardPass(networkReg, oneExData);
+    printf("After training maps 5 to %f but should map to 40\n", networkReg->layers[networkReg->numLayers - 1]->input->data[0][0]);
     
     destroyMatrix(trainingData);
     destroyMatrix(trainingClasses);
@@ -110,6 +139,10 @@ int main(){
     destroyMatrix(trainingDataF);
     destroyMatrix(trainingClassesF);
     destroyNetwork(networkF);
+    destroyMatrix(oneExData);
+    destroyMatrix(trainingDataReg);
+    destroyMatrix(trainingClassesReg);
+    destroyNetwork(networkReg);
 
     return 0;
 }

@@ -2,7 +2,7 @@
 A portable, header-only, neural network framework written in C
 
 ## Features
-* Sidmoid, ReLU, tanh, Softmax activations
+* Sidmoid, ReLU, tanh, Softmax, Linear activations
 * Cross-entropy loss, Mean squared error
 * Batch, SGD, Mini-Batch
 * L2 Regularization

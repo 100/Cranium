@@ -117,8 +117,13 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
                     if (layer == network->numLayers - 1){
                         // calculate output layer's error
                         copyValuesInto(to->input, errori[layer]);
-                        for (j = 0; j < errori[layer]->cols; j++){
-                            errori[layer]->data[0][j] -= target->data[0][j];
+                        if (lossFunction == CROSS_ENTROPY_LOSS){
+                            for (j = 0; j < errori[layer]->cols; j++){
+                                errori[layer]->data[0][j] -= target->data[0][j];
+                            }
+                        }
+                        else{
+                            errori[layer]->data[0][0] -= target->data[0][0];
                         }
 
                         // calculate dWi and dbi
@@ -227,12 +232,25 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
 
             // if verbose is set, print loss every 100 epochs
             if (verbose != 0){
-                if (epoch % 100 == 0){
+                if (epoch % 100 == 0 || epoch == 1){
                     forwardPass(network, data);
-                    printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
+                    if (lossFunction == CROSS_ENTROPY_LOSS){
+                        printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
+                    }
+                    else{
+                        printf("EPOCH %d: loss is %f\n", epoch, meanSquaredError(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
+                    }
                 }
             }
         }
+
+        // free batch data for next batch creation
+        for (i = 0; i < numBatches; i++){
+            free(dataBatches[i]);
+            free(classBatches[i]);
+        }
+        free(dataBatches);
+        free(classBatches);
     }
 
     // free all reusable matrices
@@ -264,13 +282,6 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
         free(fprimei);
         free(inputTi);
     }
-
-    for (i = 0; i < numBatches; i++){
-        free(dataBatches[i]);
-        free(classBatches[i]);
-    }
-    free(dataBatches);
-    free(classBatches);
 }
 
 #endif

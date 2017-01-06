@@ -39,6 +39,9 @@ void tanH(Matrix* input);
 // applies softmax function to each row of $input
 void softmax(Matrix* input);
 
+// applies linear function to each row of $input
+void linear(Matrix* input);
+
 // sample from the unit guassian distribution (mean = 0, variance = 1)
 float box_muller();
 
@@ -124,6 +127,9 @@ void softmax(Matrix* input){
         }
     }
 }
+
+// operates on each row
+void linear(Matrix* input){}
 
 // adapted from wikipedia
 float box_muller(){

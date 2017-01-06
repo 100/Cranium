@@ -27,7 +27,13 @@ void forwardPass(Network* network, Matrix* input);
 
 // calculate the cross entropy loss between two datasets with 
 // optional regularization (must provide network if using regularization)
+// [normal cross entropy] + 1/2(regStrength)[normal l2 reg]
 float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
+
+// calculate the mean squared error between two datasets with 
+// optional regularization (must provide network if using regularization)
+// 1/2[normal mse] + 1/2(regStrength)[normal l2 reg]
+float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
 
 // returns indices corresponding to highest-probability classes for each
 // example previously inputted
@@ -127,6 +133,35 @@ float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, flo
     }
     return ((-1.0 / actual->rows) * total_err) + (regularizationStrength * .5 * reg_err);
 }
+
+// matrixes of size [num examples] x [num classes]
+float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength){
+    assert(prediction->rows == actual->rows);
+    assert(prediction->cols == actual->cols);
+    float total_err = 0;
+    int i, j, k;
+    for (i = 0; i < prediction->rows; i++){
+        float cur_err = 0;
+        for (j = 0; j < prediction->cols; j++){
+            float tmp = actual->data[i][j] - prediction->data[i][j];
+            cur_err += tmp * tmp;
+        }
+        total_err += cur_err;
+    }
+    float reg_err = 0;
+    if (network != NULL){
+        for (i = 0; i < network->numConnections; i++){
+            Matrix* weights = network->connections[i]->weights;
+            for (j = 0; j < weights->rows; j++){
+                for (k = 0; k < weights->cols; k++){
+                    reg_err += weights->data[j][k] * weights->data[j][k];
+                }
+            }
+        }
+    }
+    return ((0.5 / actual->rows) * total_err) + (regularizationStrength * .5 * reg_err);
+}
+
 
 int* predict(Network* network){
     int i, j, max;
