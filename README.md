@@ -5,12 +5,12 @@
 <br>
 
 <div align="center">
-    <img src="passing.svg"></img>
+    <img src=""></img>
 </div>
 
 ## **Cranium** is a portable, header-only, feed-forward artificial neural network framework written in vanilla C99. 
 
-### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
+#### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
 <hr>
 
