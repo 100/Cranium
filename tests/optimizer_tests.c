@@ -7,6 +7,7 @@
 
 int main(){
     // test backpropagation correctness
+    srand(time(NULL));
     size_t hiddenSize[] = {2};
     void (*hiddenActivations[])(Matrix*) = {sigmoid};
     Network* network = createNetwork(2, 1, hiddenSize, hiddenActivations, 2, softmax);

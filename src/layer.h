@@ -87,7 +87,6 @@ void initializeConnection(Connection* connection){
     for (i = 0; i < connection->bias->cols; i++){
         connection->bias->data[0][i] = 0;
     }
-    srand(time(NULL));
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
             int neuronsIn = connection->weights->rows;

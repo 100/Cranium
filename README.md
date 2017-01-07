@@ -1,4 +1,4 @@
-# Neurotic
+# Cranium
 A portable, header-only, neural network framework written in C
 
 ## Features
