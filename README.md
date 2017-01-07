@@ -11,6 +11,8 @@
 
 #### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
+#### Check out the detailed documentation [here](https://100.github.io/Cranium/).
+
 <hr>
 
 ## Features
