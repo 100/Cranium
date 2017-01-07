@@ -4,9 +4,7 @@
 
 <br>
 
-<div align="center">
-    <img src=""></img>
-</div>
+[![Build Status](https://travis-ci.org/100/Cranium.svg?branch=master)](https://travis-ci.org/100/Cranium)
 
 ## *Cranium* is a portable, header-only, feed-forward artificial neural network framework written in vanilla C99. 
 
