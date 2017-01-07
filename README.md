@@ -8,7 +8,7 @@
     <img src=""></img>
 </div>
 
-## **Cranium** is a portable, header-only, feed-forward artificial neural network framework written in vanilla C99. 
+## <u>Cranium</u> is a portable, header-only, feed-forward artificial neural network framework written in vanilla C99. 
 
 #### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
@@ -37,7 +37,7 @@
 <hr>
 
 ## Usage
-Since **Cranium** is header-only, simply copy the ```src``` directory into your project, and ```#include "src/cranium.h"``` to begin using it. 
+Since Cranium is header-only, simply copy the ```src``` directory into your project, and ```#include "src/cranium.h"``` to begin using it. 
 
 Its only compiler dependency is from the ```<math.h>``` header, so compile with ```-lm```.
 
