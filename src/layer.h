@@ -19,7 +19,7 @@ typedef enum LAYER_TYPE_ {
 typedef struct Layer_ {
     LAYER_TYPE type;
     size_t size;
-    void (*activation)(Matrix*);
+    Activation activation;
     Matrix* input; // (num_examples x size)
 } Layer;
 
@@ -32,7 +32,7 @@ typedef struct Connection_ {
 } Connection;
 
 // returns layer given metadata and configuration
-Layer* createLayer(LAYER_TYPE type, size_t size, void (*activation)(Matrix*));
+Layer* createLayer(LAYER_TYPE type, size_t size, Activation activation);
 
 // creates a connection and creates weights and bias matrices
 Connection* createConnection(Layer* from, Layer* to);
@@ -53,7 +53,7 @@ void destroyConnection(Connection* connection);
 /*
     Begin functions.
 */
-Layer* createLayer(LAYER_TYPE type, size_t size, void (*activation)(Matrix*)){
+Layer* createLayer(LAYER_TYPE type, size_t size, Activation activation){
     Layer* layer = (Layer*)malloc(sizeof(Layer));
     layer->type = type;
     layer->size = size;

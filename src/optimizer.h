@@ -145,7 +145,9 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
                             }
                         }
                         else{
-                            errori[layer]->data[0][0] -= target->data[0][0];
+                            for (j = 0; j < errori[layer]->cols; j++){
+                                errori[layer]->data[0][j] -= target->data[0][j];
+                            }
                         }
 
                         // calculate dWi and dbi

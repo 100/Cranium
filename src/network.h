@@ -19,7 +19,7 @@ typedef struct Network_ {
 // of the ith hidden layer
 // hiddenActivations is an array of activation functions,
 // where hiddenActivations[i] is the function of the ith hidden layer
-Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, void (**hiddenActivations)(Matrix*), size_t numOutputs, void (*outputActivation)(Matrix*));
+Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, Activation* hiddenActivations, size_t numOutputs, Activation outputActivation);
 
 // will propagate input through entire network
 // result will be stored in input field of last layer
@@ -35,6 +35,9 @@ float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, flo
 // optional regularization (must provide network if using regularization)
 // 1/2[normal mse] + 1/2(regStrength)[normal l2 reg]
 float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
+
+// return matrix of network output
+Matrix* getOuput(Network* network);
 
 // returns indices corresponding to highest-probability classes for each
 // example previously inputted
@@ -58,7 +61,7 @@ Network* readNetwork(char* path);
     Begin functions.
 */
 
-Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, void (**hiddenActivations)(Matrix*), size_t numOutputs, void (*outputActivation)(Matrix*)){
+Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, Activation* hiddenActivations, size_t numOutputs, Activation outputActivation){
     assert(numFeatures > 0 && numHiddenLayers >= 0 && numOutputs > 0);
     Network* network = (Network*)malloc(sizeof(Network));
     
@@ -163,6 +166,9 @@ float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, flo
     return ((0.5 / actual->rows) * total_err) + (regularizationStrength * .5 * reg_err);
 }
 
+Matrix* getOuput(Network* network){
+    return network->layers[network->numLayers - 1]->input;
+}
 
 int* predict(Network* network){
     int i, j, max;

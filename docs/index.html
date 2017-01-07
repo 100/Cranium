@@ -1,0 +1,464 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="prism.css" data-noprefix>
+    <style>
+    body{
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    .nav li {
+        font-size: 20px;
+        padding-top: 5px;
+    }
+    h1 {
+        margin-top: 0px;
+        margin-bottom: 30px;
+        font-size: 350%;
+    }
+    h2 {
+        font-size: 300%;
+        padding-top: 80px;
+    }
+    h3 {
+        padding-top: 30px;
+    }
+    h4 {
+        font-size: 110%;
+    }
+    </style>
+</head>
+<body>
+    <script src="prism.js"></script>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <img src="../image.png"></img><br>
+                <br><br>
+                <h1>Documentation</h1>
+                <div class="nav"><ul>
+                    <li><a href="#structures"><b>Structures</b></a>
+                        <ul>
+                            <li><a href="#matrix">Matrix</a></li>
+                            <li><a href="#layer">Layer</a></li>
+                            <li><a href="#connection">Connection</a></li>
+                            <li><a href="#network">Network</a></li>
+                        </ul>
+                    </li>
+                     <li><a href="#functions"><b>Network Functions</b></a>
+                        <ul>
+                            <li><a href="#activation">Activation</a></li>
+                            <li><a href="#createMatrix">createMatrix</a></li>
+                            <li><a href="#destroyMatrix">destroyMatrix</a></li>
+                            <li><a href="#createNetwork">createNetwork</a></li>
+                            <li><a href="#destroyNetwork">destroyNetwork</a></li>
+                            <li><a href="#optimize">optimize</a></li>
+                            <li><a href="#forwardPass">forwardPass</a></li>
+                            <li><a href="#getOutput">getOuput</a></li>
+                            <li><a href="#predict">predict</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#functions"><b>Serialization Functions</b></a>
+                        <ul>
+                            <li><a href="#saveNetwork">saveNetwork</a></li>
+                            <li><a href="#readNetwork">readNetwork</a></li>
+                        </ul>
+                    </li>
+                </ul></div>
+
+                <br>
+                <h2 id="structures">Structures</h2>
+
+                <hr>
+
+                <h3 id="matrix">Matrix</h3>
+                <h4>Structure to hold data and keep track of dimensions</h4>
+                <pre><code class="language-c">
+typedef struct Matrix_ {
+    size_t rows;
+    size_t cols;
+    float** data;
+} Matrix;
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>rows</b>
+                        <br>
+                        <p>The number of rows in the matrix</p>
+                    </li>
+                    <li class="list-group-item"><b>cols</b>
+                        <br>
+                        <p>The number of columns in the matrix</p>
+                    </li>
+                    <li class="list-group-item"><b>data</b>
+                        <br>
+                        <p>The data held in the matrix, of the aforementioned dimensions</p>
+                    </li>
+                </ul>
+
+                <h3 id="layer">Layer</h3>
+                <h4>Structure to represent a layer of a network and its data</h4>
+                <pre><code class="language-c">
+typedef enum LAYER_TYPE_ {
+    INPUT,
+    HIDDEN,
+    OUTPUT
+} LAYER_TYPE;
+                </code></pre>
+                <pre><code class="language-c">
+typedef struct Layer_ {
+    LAYER_TYPE type;
+    size_t size;
+    Activation activation;
+    Matrix* input;
+} Layer;
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>type</b>
+                        <br>
+                        <p>The type of layer (INPUT, OUTPUT, or HIDDEN)</p>
+                    </li>
+                    <li class="list-group-item"><b>size</b>
+                        <br>
+                        <p>The number of neurons in the layer</p>
+                    </li>
+                    <li class="list-group-item"><b>activation</b>
+                        <br>
+                        <p>The activation function for the layer</p>
+                    </li>
+                    <li class="list-group-item"><b>input</b>
+                        <br>
+                        <p>The data currently stored in the layer in the form of a row vector with one entry per neuron in the layer</p>
+                    </li>
+                </ul>
+
+                <h3 id="connection">Connection</h3>
+                <h4>Structure to represent a link between two adjacent layers, as well the respective weights and bias</h4>
+                <pre><code class="language-c">
+typedef struct Connection_ {
+    Layer* from;
+    Layer* to;
+    Matrix* weights;
+    Matrix* bias;
+} Connection;
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>from</b>
+                        <br>
+                        <p>The layer on the input side of the connection</p>
+                    </li>
+                    <li class="list-group-item"><b>to</b>
+                        <br>
+                        <p>The layer on the output side of the connection</p>
+                    </li>
+                    <li class="list-group-item"><b>weights</b>
+                        <br>
+                        <p>The weights matrix between the "from" and "to" layers, of dimensions "from"->size by "to"->size</p>
+                    </li>
+                    <li class="list-group-item"><b>bias</b>
+                        <br>
+                        <p>The bias vector of the "to" layer, as a row vector of "to"->size</p>
+                    </li>
+                </ul>
+
+                <h3 id="network">Network</h3>
+                <h4>Structure to represent a neural network, with its size, layers, and connections</h4>
+                <pre><code class="language-c">
+typedef struct Network_ {
+    size_t numLayers;
+    Layer** layers;
+    size_t numConnections;
+    Connection** connections;
+} Network;
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>numLayers</b>
+                        <br>
+                        <p>The total number of layers in the network</p>
+                    </li>
+                    <li class="list-group-item"><b>layers</b>
+                        <br>
+                        <p>The network's layers, in order</p>
+                    </li>
+                    <li class="list-group-item"><b>numConnections</b>
+                        <br>
+                        <p>The total number of connections in the network</p>
+                    </li>
+                    <li class="list-group-item"><b>connections</b>
+                        <br>
+                        <p>The network's connections, in order</p>
+                    </li>
+                </ul>
+                
+                <br>
+                <h2 id="functions">Network Functions</h2>
+
+                <hr>
+
+                <h3 id="activation">Activation</h3>
+                <h4>Functions that are applied to the input of each neuron within a layer</h4>
+                <pre><code class="language-c">
+typedef void (*Activation)(Matrix*);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>sigmoid</b>
+                        <br>
+                        <p>Applies sigmoid function to layer (for hidden layers)</p>
+                    </li>
+                    <li class="list-group-item"><b>relu</b>
+                        <br>
+                        <p>Applies ReLU function to layer (for hidden layers)</p>
+                    </li>
+                    <li class="list-group-item"><b>tanH</b>
+                        <br>
+                        <p>Applies tanh function to layer (for hidden layers)</p>
+                    </li>
+                    <li class="list-group-item"><b>softmax</b>
+                        <br>
+                        <p>Applies softmax function to layer (for output layer with CROSS_ENTROPY_LOSS)</p>
+                    </li>
+                    <li class="list-group-item"><b>linear</b>
+                        <br>
+                        <p>Applies linear function to layer (for output layer with MEAN_SQUARED_ERROR)</p>
+                    </li>
+                </ul>
+
+                <h3 id="createMatrix">createMatrix</h3>
+                <h4>Returns a pointer to a matrix of the given size and with the given data using the provided pointer</h4>
+                <pre><code class="language-c">
+Matrix* createMatrix(size_t rows, size_t cols, float** data);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>rows</b>
+                        <br>
+                        <p>The number of rows in the matrix</p>
+                    </li>
+                    <li class="list-group-item"><b>cols</b>
+                        <br>
+                        <p>The number of columns in the matrix</p>
+                    </li>
+                    <li class="list-group-item"><b>data</b>
+                        <br>
+                        <p>The data, of the aforementioned dimensions, to be put into the matrix</p>
+                    </li>
+                </ul>
+
+                <h3 id="destroyMatrix">destroyMatrix</h3>
+                <h4>Frees a matrix and its data</h4>
+                <pre><code class="language-c">
+void destroyMatrix(Matrix* matrix);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>matrix</b>
+                        <br>
+                        <p>The matrix to free</p>
+                    </li>
+                </ul>
+
+                <h3 id="createNetwork">createNetwork</h3>
+                <h4>Returns a pointer to a network with the given dimensions and functions</h4>
+                <pre><code class="language-c">
+Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t*
+    hiddenSizes, Activation* hiddenActivations, size_t numOutputs,
+    Activation outputActivation);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>numFeatures</b>
+                        <br>
+                        <p>The number of neurons in the input layer</p>
+                    </li>
+                    <li class="list-group-item"><b>numHiddenLayers</b>
+                        <br>
+                        <p>The number of hidden layers in the network</p>
+                    </li>
+                    <li class="list-group-item"><b>hiddenSizes</b>
+                        <br>
+                        <p>The sizes of the hidden layers, provided as a list of sizes in order</p>
+                    </li>
+                    <li class="list-group-item"><b>hiddenActivations</b>
+                        <br>
+                        <p>The activation functions of the hidden layers, provided as a list of functions, in order</p>
+                    </li>
+                    <li class="list-group-item"><b>numOutputs</b>
+                        <br>
+                        <p>The number of neurons in the output layer</p>
+                    </li>
+                    <li class="list-group-item"><b>outputActivation</b>
+                        <br>
+                        <p>The activation function of the output layer (should be softmax for classification, and linear for regression)</p>
+                    </li>
+                </ul>
+
+                <h3 id="destroyNetwork">destroyNetwork</h3>
+                <h4>Frees a network, its connections, and its layers</h4>
+                <pre><code class="language-c">
+void destroyNetwork(Network* network);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to free</p>
+                    </li>
+                </ul>
+
+                <h3 id="optimize">optimize</h3>
+                <h4>Trains a neural network given training parameters</h4>
+                <pre><code class="language-c">
+typedef enum LOSS_FUNCTION_ {
+    CROSS_ENTROPY_LOSS, 
+    MEAN_SQUARED_ERROR
+} LOSS_FUNCTION;
+                </code></pre>
+                <pre><code class="language-c">
+typedef struct ParameterSet_ {
+    Network* network;
+    Matrix* data;
+    Matrix* classes;
+    LOSS_FUNCTION lossFunction;
+    size_t batchSize;
+    float learningRate;
+    float searchTime;
+    float regularizationStrength;
+    float momentumFactor;
+    int maxIters;
+    int shuffle;
+    int verbose;
+} ParameterSet;
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to optimize</p>
+                    </li>
+                    <li class="list-group-item"><b>data</b>
+                        <br>
+                        <p>The training data to train the network with</p>
+                    </li>
+                    <li class="list-group-item"><b>classes</b>
+                        <br>
+                        <p>The target values for the training data</p>
+                    </li>
+                    <li class="list-group-item"><b>lossFunction</b>
+                        <br>
+                        <p>The loss function to use when training, should be CROSS_ENTROPY_LOSS for classification and MEAN_SQUARED_ERROR for regression</p>
+                    </li>
+                    <li class="list-group-item"><b>batchSize</b>
+                        <br>
+                        <p>The size of each batch (provide 1 for SGD, and data->rows for Batch)</p>
+                    </li>
+                    <li class="list-group-item"><b>learningRate</b>
+                        <br>
+                        <p>The constant factor for initial learning rate</p>
+                    </li>
+                    <li class="list-group-item"><b>searchTime</b>
+                        <br>
+                        <p>The parameter for learning rate annealing, provide 0 to not use annealing</p>
+                    </li>
+                    <li class="list-group-item"><b>regularizationStrength</b>
+                        <br>
+                        <p>The constant factor for regularization</p>
+                    </li>
+                    <li class="list-group-item"><b>momentumFactor</b>
+                        <br>
+                        <p>The constant factor for simple momentum</p>
+                    </li>
+                    <li class="list-group-item"><b>maxIters</b>
+                        <br>
+                        <p>The number of epochs to run the optimization algorithm for</p>
+                    </li>
+                    <li class="list-group-item"><b>shuffle</b>
+                        <br>
+                        <p>If non-zero, will shuffle the data in between epochs (recommended)</p>
+                    </li>
+                    <li class="list-group-item"><b>verbose</b>
+                        <br>
+                        <p>If non-zero, will print loss every 100 epochs</p>
+                    </li>
+                </ul>
+                <pre><code class="language-c">
+void optimize(ParameterSet params);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>params</b>
+                        <br>
+                        <p>The set of parameters to use when optimizing</p>
+                    </li>
+                </ul>
+
+                <h3 id="forwardPass">forwardPass</h3>
+                <h4>Passes input through a network, storing output in the network's last layer</h4>
+                <pre><code class="language-c">
+void forwardPass(Network* network, Matrix* input);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to use</p>
+                    </li>
+                    <li class="list-group-item"><b>input</b>
+                        <br>
+                        <p>The data to pass through the network</p>
+                    </li>
+                </ul>
+
+                <h3 id="getOutput">getOutput</h3>
+                <h4>Returns the output in the last layer of a network (after using forwardPass)</h4>
+                <pre><code class="language-c">
+Matrix* getOuput(Network* network);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to use</p>
+                    </li>
+                </ul>
+
+                <h3 id="predict">predict</h3>
+                <h4>Returns an int* containing the indices of the predicted classes in the order they were given</h4>
+                <pre><code class="language-c">
+int* predict(Network* network);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to use</p>
+                    </li>
+                </ul>
+
+                <br>
+                <h2 id="serialization">Serialization Functions</h2>
+
+                <hr>
+
+                <h3 id="saveNetwork">saveNetwork</h3>
+                <h4>Saves a network and all of its configuration details to a file</h4>
+                <pre><code class="language-c">
+void saveNetwork(Network* network, char* path);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to save</p>
+                    </li>
+                    <li class="list-group-item"><b>path</b>
+                        <br>
+                        <p>The file path to where the network is to be saved</p>
+                    </li>
+                </ul>
+
+                <h3 id="readNetwork">readNetwork</h3>
+                <h4>Returns a network created from the serialization of a previous network</h4>
+                <pre><code class="language-c">
+Network* readNetwork(char* path);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>path</b>
+                        <br>
+                        <p>The file path to where the network had been saved</p>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
