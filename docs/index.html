@@ -351,7 +351,7 @@ typedef struct ParameterSet_ {
                     </li>
                     <li class="list-group-item"><b>searchTime</b>
                         <br>
-                        <p>The parameter for learning rate annealing, provide 0 to not use annealing</p>
+                        <p>The parameter for "search-then-converge" learning rate annealing that describes when the learning rate will begin slowing down, provide 0 to not use annealing</p>
                     </li>
                     <li class="list-group-item"><b>regularizationStrength</b>
                         <br>
@@ -359,7 +359,7 @@ typedef struct ParameterSet_ {
                     </li>
                     <li class="list-group-item"><b>momentumFactor</b>
                         <br>
-                        <p>The constant factor for simple momentum</p>
+                        <p>The constant factor for simple momentum (adds a fraction of the previous weight update)</p>
                     </li>
                     <li class="list-group-item"><b>maxIters</b>
                         <br>
