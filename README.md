@@ -7,7 +7,7 @@
 [![Build Status](https://travis-ci.org/100/Cranium.svg?branch=master)](https://travis-ci.org/100/Cranium)
 [![DUB](https://img.shields.io/dub/l/vibe-d.svg)]()
 
-## *Cranium* is a portable, header-only, feedforward artificial neural network framework written in vanilla C99. 
+## *Cranium* is a portable, header-only, feedforward artificial neural network library written in vanilla C99. 
 
 #### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
