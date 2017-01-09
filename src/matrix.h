@@ -22,6 +22,9 @@ typedef struct Matrix_ {
 // creates a matrix given data
 static Matrix* createMatrix(size_t rows, size_t cols, float** data);
 
+// creates a matrix zeroed out
+static Matrix* createMatrixZeroes(int rows, int cols);
+
 // uses memory of the original data to split matrix into submatrices
 static Matrix** createBatches(Matrix* allData, int numBatches);
 
