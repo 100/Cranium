@@ -9,52 +9,52 @@ typedef void (*Activation)(Matrix*);
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 // raw sigmoid function
-float sigmoidFunc(float input);
+static float sigmoidFunc(float input);
 
 // derivatve of sigmoid given output of sigmoid
-float sigmoidDeriv(float sigmoidInput);
+static float sigmoidDeriv(float sigmoidInput);
 
 // raw ReLU function
-float reluFunc(float input);
+static float reluFunc(float input);
 
 // derivative of ReLU given output of ReLU
-float reluDeriv(float reluInput);
+static float reluDeriv(float reluInput);
 
 // raw tanh function
-float tanHFunc(float input);
+static float tanHFunc(float input);
 
 // derivatve of tanh given output of sigmoid
-float tanHDeriv(float sigmoidInput);
+static float tanHDeriv(float sigmoidInput);
 
 // applies sigmoid function to each entry of $input
-void sigmoid(Matrix* input);
+static void sigmoid(Matrix* input);
 
 // applies ReLU function to each entry of input
-void relu(Matrix* input);
+static void relu(Matrix* input);
 
 // applues tanh function to each entry of input
-void tanH(Matrix* input);
+static void tanH(Matrix* input);
 
 // applies softmax function to each row of $input
-void softmax(Matrix* input);
+static void softmax(Matrix* input);
 
 // applies linear function to each row of $input
-void linear(Matrix* input);
+static void linear(Matrix* input);
 
 // derivative of linear function given output of linear
-float linearDeriv(float linearInput);
+static float linearDeriv(float linearInput);
 
 // sample from the unit guassian distribution (mean = 0, variance = 1)
-float box_muller();
+static float box_muller();
 
 // return the string representation of activation function
-const char* getFunctionName(Activation func);
+static const char* getFunctionName(Activation func);
 
 // return the activation function corresponding to a name
-Activation getFunctionByName(const char* name);
+static Activation getFunctionByName(const char* name);
 
 // return derivative of activation function
-float (*activationDerivative(Activation func))(float);
+static float (*activationDerivative(Activation func))(float);
 
 
 /*

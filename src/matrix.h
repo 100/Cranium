@@ -20,64 +20,64 @@ typedef struct Matrix_ {
 */
 
 // creates a matrix given data
-Matrix* createMatrix(size_t rows, size_t cols, float** data);
+static Matrix* createMatrix(size_t rows, size_t cols, float** data);
 
 // uses memory of the original data to split matrix into submatrices
-Matrix** createBatches(Matrix* allData, int numBatches);
+static Matrix** createBatches(Matrix* allData, int numBatches);
 
 // sets the values in $to equal to values in $from
-void copyValuesInto(Matrix* from, Matrix* to);
+static void copyValuesInto(Matrix* from, Matrix* to);
 
 // prints the entries of a matrix
-void printMatrix(Matrix* input);
+static void printMatrix(Matrix* input);
 
 // sets each entry in matrix to 0
-void zeroMatrix(Matrix* orig);
+static void zeroMatrix(Matrix* orig);
 
 // returns transpose of matrix
-Matrix* transpose(Matrix* orig);
+static Matrix* transpose(Matrix* orig);
 
 // transposes matrix and places data into $origT
-void transposeInto(Matrix* orig, Matrix* origT);
+static void transposeInto(Matrix* orig, Matrix* origT);
 
 // collapses matrix into row vector of column averages
-Matrix* columnAverages(Matrix* orig);
+static Matrix* columnAverages(Matrix* orig);
 
 // adds two matrices and returns result
-Matrix* add(Matrix* A, Matrix* b);
+static Matrix* add(Matrix* A, Matrix* b);
 
 // adds $from to $to and places result in $to
-void addTo(Matrix* from, Matrix* to);
+static void addTo(Matrix* from, Matrix* to);
 
 // adds $B, a row vector, to each row of $A
-Matrix* addToEachRow(Matrix* A, Matrix* B);
+static Matrix* addToEachRow(Matrix* A, Matrix* B);
 
 // multiplies every element of $orig by $C
-void scalarMultiply(Matrix* orig, float c);
+static void scalarMultiply(Matrix* orig, float c);
 
 // multiplies $A and $B (ordering: AB) and returns product matrix
-Matrix* multiply(Matrix* A, Matrix* B);
+static Matrix* multiply(Matrix* A, Matrix* B);
 
 // multiplies $A and $B (ordering: AB) and places values into $into
-void multiplyInto(Matrix* A, Matrix* B, Matrix* into);
+static void multiplyInto(Matrix* A, Matrix* B, Matrix* into);
 
 // element-wise multiplcation
-Matrix* hadamard(Matrix* A, Matrix* B);
+static Matrix* hadamard(Matrix* A, Matrix* B);
 
 // places values of hadamard product of $A and $B into $into
-void hadamardInto(Matrix* A, Matrix* B, Matrix* into);
+static void hadamardInto(Matrix* A, Matrix* B, Matrix* into);
 
 // returns a shallow copy of input matrix
-Matrix* copy(Matrix* orig);
+static Matrix* copy(Matrix* orig);
 
 // returns 1 if matrices are equal, 0 otherwise
-int equals(Matrix* A, Matrix* B);
+static int equals(Matrix* A, Matrix* B);
 
 // shuffle two matrices, maintaining alignment between their rows
-void shuffleTogether(Matrix* A, Matrix* B);
+static void shuffleTogether(Matrix* A, Matrix* B);
 
 // frees a matrix and its data
-void destroyMatrix(Matrix* matrix);
+static void destroyMatrix(Matrix* matrix);
 
 
 /*

@@ -32,22 +32,22 @@ typedef struct Connection_ {
 } Connection;
 
 // returns layer given metadata and configuration
-Layer* createLayer(LAYER_TYPE type, size_t size, Activation activation);
+static Layer* createLayer(LAYER_TYPE type, size_t size, Activation activation);
 
 // creates a connection and creates weights and bias matrices
-Connection* createConnection(Layer* from, Layer* to);
+static Connection* createConnection(Layer* from, Layer* to);
 
 // initializes weights and biases within connection
-void initializeConnection(Connection* connection);
+static void initializeConnection(Connection* connection);
 
 // applies activation function to each input in layer
-void activateLayer(Layer* layer);
+static void activateLayer(Layer* layer);
 
 // frees layer and its input
-void destroyLayer(Layer* layer);
+static void destroyLayer(Layer* layer);
 
 // frees connection, its weights, and biases, but not its layers
-void destroyConnection(Connection* connection);
+static void destroyConnection(Connection* connection);
 
 
 /*

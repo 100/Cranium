@@ -19,42 +19,42 @@ typedef struct Network_ {
 // of the ith hidden layer
 // hiddenActivations is an array of activation functions,
 // where hiddenActivations[i] is the function of the ith hidden layer
-Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, Activation* hiddenActivations, size_t numOutputs, Activation outputActivation);
+static Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t* hiddenSizes, Activation* hiddenActivations, size_t numOutputs, Activation outputActivation);
 
 // will propagate input through entire network
 // result will be stored in input field of last layer
 // input should be a matrix where each row is an input
-void forwardPass(Network* network, Matrix* input);
+static void forwardPass(Network* network, Matrix* input);
 
 // calculate the cross entropy loss between two datasets with 
 // optional regularization (must provide network if using regularization)
 // [normal cross entropy] + 1/2(regStrength)[normal l2 reg]
-float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
+static float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
 
 // calculate the mean squared error between two datasets with 
 // optional regularization (must provide network if using regularization)
 // 1/2[normal mse] + 1/2(regStrength)[normal l2 reg]
-float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
+static float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
 
 // return matrix of network output
-Matrix* getOuput(Network* network);
+static Matrix* getOuput(Network* network);
 
 // returns indices corresponding to highest-probability classes for each
 // example previously inputted
 // assumes final output is in the output layer of network
-int* predict(Network* network);
+static int* predict(Network* network);
 
 // return accuracy (num_correct / num_total) of network on predictions
-float accuracy(Network* network, Matrix* data, Matrix* classes);
+static float accuracy(Network* network, Matrix* data, Matrix* classes);
 
 // frees network, its layers, and its connections
-void destroyNetwork(Network* network);
+static void destroyNetwork(Network* network);
 
 // write network configuration to a file
-void saveNetwork(Network* network, char* path);
+static void saveNetwork(Network* network, char* path);
 
 // read network configuration from a file
-Network* readNetwork(char* path);
+static Network* readNetwork(char* path);
 
 
 /*
