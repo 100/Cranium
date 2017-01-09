@@ -11,6 +11,8 @@
 
 #### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
+#### In order to maintain portability, BLAS implementations were not used. Feel free to change the ```multiply``` function in ```matrix.h``` to utilize faster methods. Generally, all matrix operations are done through these functions, so it is easy to modify them without changing the rest of the codebase.
+
 #### Check out the detailed documentation [here](https://100.github.io/Cranium/).
 
 <hr>
