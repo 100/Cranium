@@ -64,8 +64,8 @@ The training classes should be in matrix form, where the ith row corresponds to
 
 // create training data and target values
 int rows, features, classes;
-double** training;
-double** classes;
+float** training;
+float** classes;
 
 // create matrices to hold the data
 Matrix* trainingData = createMatrix(rows, features, training);
