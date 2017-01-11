@@ -15,21 +15,20 @@ int main(){
     }
 
     // test softmax
-    float** row = (float**)malloc(sizeof(float*));
-    row[0] = (float*)malloc(sizeof(float) * 10);
+    float* row = (float*)malloc(sizeof(float) * 10);
     int j;
     for (j = 0; j < 10; j++){
-        row[0][j] = expf(j/2);
+        row[j] = expf(j/2);
         if (j % 2 == 0){
-            row[0][j] *= -1;
+            row[j] *= -1;
         }
     }
     Matrix* rowMatrix = createMatrix(1, 10, row);
     softmax(rowMatrix);
     float sum = 0;
     for (j = 0; j < 10; j++){
-        assert(rowMatrix->data[0][j] >= 0 && rowMatrix->data[0][j] <= 1);
-        sum += rowMatrix->data[0][j];
+        assert(rowMatrix->data[j] >= 0 && rowMatrix->data[j] <= 1);
+        sum += rowMatrix->data[j];
     }
     assert(sum >= .99 && sum <= 1.01);
 

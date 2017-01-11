@@ -25,15 +25,14 @@ int main(){
         example_data[0][i] = (i + 1.0) / 2;
         example_data[1][i] = (i + 1.5) / 2;
     }
-    Matrix* example = createMatrix(2, 5, example_data);
-    forwardPass(network, example);
+    DataSet* example = createDataSet(2, 5, example_data);
+    forwardPassDataSet(network, example);
 
     // test cross-entropy loss
-    float** A_data = (float**)malloc(sizeof(float*) * 3);
+    float* A_data = (float*)malloc(sizeof(float) * 3 * 3);
     for (i = 0; i < 3; i++){
-        A_data[i] = (float*)malloc(sizeof(float) * 3);
         for (j = 0; j < 3; j++){
-            A_data[i][j] = i + j;
+            A_data[i * 3 + j] = i + j;
         }
     }
     float** B_data = (float**)malloc(sizeof(float*) * 3);
@@ -44,17 +43,16 @@ int main(){
         }
     }
     Matrix* predictM = createMatrix(3, 3, A_data);
-    Matrix* actual = createMatrix(3, 3, B_data);
+    DataSet* actual = createDataSet(3, 3, B_data);
     assert(crossEntropyLoss(NULL, predictM, actual, 0) <= 0.001);
 
     // test prediction
-    float** predict_data = (float**)malloc(sizeof(float*) * 1);
-    predict_data[0] = (float*)malloc(sizeof(float) * 5);
-    predict_data[0][0] = 0.1;
-    predict_data[0][1] = 0.2;
-    predict_data[0][2] = 0.7;
-    predict_data[0][3] = 0;
-    predict_data[0][4] = 0;
+    float* predict_data = (float*)malloc(sizeof(float) * 5);
+    predict_data[0] = 0.1;
+    predict_data[1] = 0.2;
+    predict_data[2] = 0.7;
+    predict_data[3] = 0;
+    predict_data[4] = 0;
     Matrix* predictData = createMatrix(1, 5, predict_data);
     destroyMatrix(network->layers[3]->input);
     network->layers[3]->input = predictData;
@@ -76,7 +74,7 @@ int main(){
 
     // test everything but without hidden layers
     Network* networkNoHidden = createNetwork(5, 0, NULL, NULL, 4, softmax);
-    forwardPass(networkNoHidden, example);
+    forwardPassDataSet(networkNoHidden, example);
     saveNetwork(networkNoHidden, "network2.pkl");
     Network* fromFile2 = readNetwork("network2.pkl");
     assert(networkNoHidden->numLayers == fromFile2->numLayers);
@@ -86,8 +84,8 @@ int main(){
 
     // test destroy
     destroyMatrix(predictM);
-    destroyMatrix(actual);
-    destroyMatrix(example);
+    destroyDataSet(actual);
+    destroyDataSet(example);
     destroyNetwork(network);
     destroyNetwork(fromFile);
     destroyNetwork(networkNoHidden);

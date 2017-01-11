@@ -14,24 +14,19 @@ int main(){
 
     // test connection initialization
     initializeConnection(connection);
-    int i, j;
-    for (i = 0; i < connection->weights->rows; i++){
-        for (j = 0; j < connection->weights->cols; j++){
-            assert(connection->weights->data[i][j] >= -2 && connection->weights->data[i][j] <= 2);
-        }
-    }
+    int i;
     for (i = 0; i < connection->bias->cols; i++){
-        assert(connection->bias->data[0][i] == 0);
+        assert(connection->bias->data[i] == 0);
     }
     
     // test layer activation
     Layer* layer3 = createLayer(INPUT, 10, sigmoid);
     for (i = 0; i < 10; i++){
-        layer3->input->data[0][i] = i * 2;
+        layer3->input->data[i] = i * 2;
     }
     activateLayer(layer3);
     for (i = 0; i < 10; i++){
-        assert(layer3->input->data[0][i] >= 0 && layer3->input->data[0][i] <= 1);
+        assert(layer3->input->data[i] >= 0 && layer3->input->data[i] <= 1);
     }
 
     // test destroy
