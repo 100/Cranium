@@ -26,15 +26,20 @@ static Network* createNetwork(size_t numFeatures, size_t numHiddenLayers, size_t
 // input should be a matrix where each row is an input
 static void forwardPass(Network* network, Matrix* input);
 
+// will propagate input through entire network
+// result will be stored in input field of last layer
+// input should be a dataset where each row is an input
+static void forwardPassDataSet(Network* network, DataSet* input);
+
 // calculate the cross entropy loss between two datasets with 
 // optional regularization (must provide network if using regularization)
 // [normal cross entropy] + 1/2(regStrength)[normal l2 reg]
-static float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
+static float crossEntropyLoss(Network* network, Matrix* prediction, DataSet* actual, float regularizationStrength);
 
 // calculate the mean squared error between two datasets with 
 // optional regularization (must provide network if using regularization)
 // 1/2[normal mse] + 1/2(regStrength)[normal l2 reg]
-static float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength);
+static float meanSquaredError(Network* network, Matrix* prediction, DataSet* actual, float regularizationStrength);
 
 // return matrix of network output
 static Matrix* getOuput(Network* network);
@@ -45,7 +50,7 @@ static Matrix* getOuput(Network* network);
 static int* predict(Network* network);
 
 // return accuracy (num_correct / num_total) of network on predictions
-static float accuracy(Network* network, Matrix* data, Matrix* classes);
+static float accuracy(Network* network, DataSet* data, DataSet* classes);
 
 // frees network, its layers, and its connections
 static void destroyNetwork(Network* network);
@@ -111,8 +116,15 @@ void forwardPass(Network* network, Matrix* input){
     }
 }
 
+// TODO: optimize this to not need the conversion
+static void forwardPassDataSet(Network* network, DataSet* input){
+    Matrix* dataMatrix = dataSetToMatrix(input);
+    forwardPass(network, dataMatrix);
+    destroyMatrix(dataMatrix);
+}
+
 // matrixes of size [num examples] x [num classes]
-float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength){
+float crossEntropyLoss(Network* network, Matrix* prediction, DataSet* actual, float regularizationStrength){
     assert(prediction->rows == actual->rows);
     assert(prediction->cols == actual->cols);
     float total_err = 0;
@@ -120,7 +132,7 @@ float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, flo
     for (i = 0; i < prediction->rows; i++){
         float cur_err = 0;
         for (j = 0; j < prediction->cols; j++){
-            cur_err += actual->data[i][j] * logf(MAX(FLT_MIN, prediction->data[i][j]));
+            cur_err += actual->data[i][j] * logf(MAX(FLT_MIN, get(prediction, i, j)));
         }
         total_err += cur_err;
     }
@@ -130,7 +142,7 @@ float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, flo
             Matrix* weights = network->connections[i]->weights;
             for (j = 0; j < weights->rows; j++){
                 for (k = 0; k < weights->cols; k++){
-                    reg_err += weights->data[j][k] * weights->data[j][k];
+                    reg_err += get(weights, j, k) * get(weights, j, k);
                 }
             }
         }
@@ -139,7 +151,7 @@ float crossEntropyLoss(Network* network, Matrix* prediction, Matrix* actual, flo
 }
 
 // matrixes of size [num examples] x [num classes]
-float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, float regularizationStrength){
+float meanSquaredError(Network* network, Matrix* prediction, DataSet* actual, float regularizationStrength){
     assert(prediction->rows == actual->rows);
     assert(prediction->cols == actual->cols);
     float total_err = 0;
@@ -147,7 +159,7 @@ float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, flo
     for (i = 0; i < prediction->rows; i++){
         float cur_err = 0;
         for (j = 0; j < prediction->cols; j++){
-            float tmp = actual->data[i][j] - prediction->data[i][j];
+            float tmp = actual->data[i][j] - get(prediction, i, j);
             cur_err += tmp * tmp;
         }
         total_err += cur_err;
@@ -158,7 +170,7 @@ float meanSquaredError(Network* network, Matrix* prediction, Matrix* actual, flo
             Matrix* weights = network->connections[i]->weights;
             for (j = 0; j < weights->rows; j++){
                 for (k = 0; k < weights->cols; k++){
-                    reg_err += weights->data[j][k] * weights->data[j][k];
+                    reg_err += get(weights, j, k) * get(weights, j, k);
                 }
             }
         }
@@ -177,7 +189,7 @@ int* predict(Network* network){
     for (i = 0; i < outputLayer->input->rows; i++){
         max = 0;
         for (j = 1; j < outputLayer->size; j++){
-            if (outputLayer->input->data[i][j] > outputLayer->input->data[i][max]){
+            if (get(outputLayer->input, i, j) > get(outputLayer->input, i, max)){
                 max = j;
             }
         }
@@ -186,10 +198,10 @@ int* predict(Network* network){
     return predictions;
 }
 
-float accuracy(Network* network, Matrix* data, Matrix* classes){
+float accuracy(Network* network, DataSet* data, DataSet* classes){
     assert(data->rows == classes->rows);
     assert(data->cols == network->layers[network->numLayers - 1]->size);
-    forwardPass(network, data);
+    forwardPassDataSet(network, data);
     int* predictions = predict(network);
     float numCorrect = 0;
     int i;
@@ -238,7 +250,7 @@ void saveNetwork(Network* network, char* path){
         Connection* con = network->connections[k];
         for (i = 0; i < con->weights->rows; i++){
             for (j = 0; j < con->weights->cols; j++){
-                fprintf(fp, "%a\n", con->weights->data[i][j]);
+                fprintf(fp, "%a\n", get(con->weights, i, j));
             }
         }
     }
@@ -247,7 +259,7 @@ void saveNetwork(Network* network, char* path){
     for (k = 0; k < network->numConnections; k++){
         Connection* con = network->connections[k];
         for (i = 0; i < con->bias->cols; i++){
-            fprintf(fp, "%a\n", con->bias->data[0][i]);
+            fprintf(fp, "%a\n", get(con->bias, 0, i));
         }
     }
 
@@ -310,7 +322,7 @@ Network* readNetwork(char* path){
         for (i = 0; i < con->weights->rows; i++){
             for (j = 0; j < con->weights->cols; j++){
                 fgets(buf, 50, fp);
-                sscanf(buf, "%a", &con->weights->data[i][j]);
+                sscanf(buf, "%a", &con->weights->data[con->weights->cols * i + j]);
                 memset(&buf[0], 0, 50);
             }
         }
@@ -321,7 +333,7 @@ Network* readNetwork(char* path){
         Connection* con = network->connections[k];
         for (i = 0; i < con->bias->cols; i++){
             fgets(buf, 50, fp);
-            sscanf(buf, "%a", &con->bias->data[0][i]);
+            sscanf(buf, "%a", &con->bias->data[i]);
             memset(&buf[0], 0, 50);
         }
     }

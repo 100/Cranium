@@ -62,14 +62,14 @@ The training classes should be in matrix form, where the ith row corresponds to
     0 otherwise. Each example may only be of 1 class.
 */
 
-// create training data and target values
+// create training data and target values (data collection not shown)
 int rows, features, classes;
 float** training;
 float** classes;
 
-// create matrices to hold the data
-Matrix* trainingData = createMatrix(rows, features, training);
-Matrix* trainingClasses = createMatrix(rows, classes, classes);
+// create datasets to hold the data
+DataSet* trainingData = createDataSet(rows, features, training);
+DataSet* trainingClasses = createDataSet(rows, classes, classes);
 
 // create network with 2 input neurons, 1 hidden layer with sigmoid
 // activation function and 5 neurons, and 2 output neurons with softmax 
@@ -108,11 +108,12 @@ saveNetwork(net, "network");
 
 // free network and data
 destroyNetwork(net);
-destroyMatrix(trainingData);
-destroyMatrix(trainingClasses);
+destroyDataSet(trainingData);
+destroyDataSet(trainingClasses);
 
 // load previous network from file
 Network* previousNet = readNetwork("network");
+destroyNetwork(previousNet);
 ```
 
 <hr>

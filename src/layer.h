@@ -53,13 +53,13 @@ static void destroyConnection(Connection* connection);
 /*
     Begin functions.
 */
+
 Layer* createLayer(LAYER_TYPE type, size_t size, Activation activation){
     Layer* layer = (Layer*)malloc(sizeof(Layer));
     layer->type = type;
     layer->size = size;
     layer->activation = activation;
-    float** row = (float**)malloc(sizeof(float*));
-    row[0] = (float*)malloc(sizeof(float) * size);
+    float* row = (float*)malloc(sizeof(float) * size);
     layer->input = createMatrix(1, size, row);
     return layer;
 }
@@ -68,14 +68,9 @@ Connection* createConnection(Layer* from, Layer* to){
     Connection* connection = (Connection*)malloc(sizeof(Connection));
     connection->from = from;
     connection->to = to;
-    float** weights_data = (float**)malloc(sizeof(float*) * from->size);
-    int i;
-    for (i = 0; i < from->size; i++){
-        weights_data[i] = (float*)malloc(sizeof(float) * to->size);
-    }
+    float* weights_data = (float*)malloc(sizeof(float) * to->size * from->size);
     connection->weights = createMatrix(from->size, to->size, weights_data);
-    float** bias_data = (float**)malloc(sizeof(float*));
-    bias_data[0] = (float*)malloc(sizeof(float) * to->size);
+    float* bias_data = (float*)malloc(sizeof(float) * to->size);
     connection->bias = createMatrix(1, to->size, bias_data);
     return connection;
 }
@@ -85,12 +80,12 @@ Connection* createConnection(Layer* from, Layer* to){
 void initializeConnection(Connection* connection){
     int i, j;
     for (i = 0; i < connection->bias->cols; i++){
-        connection->bias->data[0][i] = 0;
+        set(connection->bias, 0, i, 0);
     }
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
             int neuronsIn = connection->weights->rows;
-            connection->weights->data[i][j] = box_muller() / sqrt(neuronsIn);
+            set(connection->weights, i, j, box_muller() / sqrt(neuronsIn));
         }
     }
 }

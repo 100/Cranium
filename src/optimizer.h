@@ -16,8 +16,8 @@ typedef enum LOSS_FUNCTION_ {
 // convenience struct for easier parameter filling
 typedef struct ParameterSet_ {
     Network* network;
-    Matrix* data;
-    Matrix* classes;
+    DataSet* data;
+    DataSet* classes;
     LOSS_FUNCTION lossFunction;
     size_t batchSize;
     float learningRate;
@@ -41,7 +41,7 @@ typedef struct ParameterSet_ {
 // $maxIters is the number of epochs to run the algorithm for
 // $shuffle, if non-zero, will shuffle the data between iterations
 // $verbose, if non-zero, will print loss every 100 epochs
-static void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_FUNCTION lossFunction, size_t batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle, int verbose);
+static void batchGradientDescent(Network* network, DataSet* data, DataSet* classes, LOSS_FUNCTION lossFunction, size_t batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle, int verbose);
 
 // optimizes given parameters
 static void optimize(ParameterSet params){
@@ -53,7 +53,7 @@ static void optimize(ParameterSet params){
     Begin functions.
 */
 
-void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_FUNCTION lossFunction, size_t batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle,  int verbose){
+void batchGradientDescent(Network* network, DataSet* data, DataSet* classes, LOSS_FUNCTION lossFunction, size_t batchSize, float learningRate, float searchTime, float regularizationStrength, float momentumFactor, int maxIters, int shuffle,  int verbose){
     assert(network->layers[0]->size == data->cols);
     assert(data->rows == classes->rows);
     assert(network->layers[network->numLayers - 1]->size == classes->cols);
@@ -106,7 +106,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
 
     int numBatches = (data->rows / batchSize) + (data->rows % batchSize != 0 ? 1 : 0);
     int training, batch, epoch, layer;
-    Matrix** dataBatches,** classBatches;
+    DataSet** dataBatches,** classBatches;
     epoch = 1;
     while (epoch <= maxIters){
         // shuffle all data and classes but maintain training/class alignment
@@ -120,10 +120,10 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
         for (batch = 0; batch < numBatches && epoch <= maxIters; batch++, epoch++){
             // find current batch
             int curBatchSize = batch == numBatches - 1 ? (data->rows % batchSize != 0 ? data->rows % batchSize : batchSize) : batchSize;
-            Matrix* batchTraining = dataBatches[batch];
-            Matrix* batchClasses = classBatches[batch];
-            Matrix** splitTraining = createBatches(batchTraining, curBatchSize);
-            Matrix** splitClasses = createBatches(batchClasses, curBatchSize);
+            DataSet* batchTraining = dataBatches[batch];
+            DataSet* batchClasses = classBatches[batch];
+            Matrix** splitTraining = splitRows(batchTraining);
+            Matrix** splitClasses = splitRows(batchClasses);
             for (training = 0; training < curBatchSize; training++){
                 // current data point to train on
                 Matrix* example = splitTraining[training];
@@ -141,12 +141,12 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
                         copyValuesInto(to->input, errori[layer]);
                         if (lossFunction == CROSS_ENTROPY_LOSS){
                             for (j = 0; j < errori[layer]->cols; j++){
-                                errori[layer]->data[0][j] -= target->data[0][j];
+                                errori[layer]->data[j] -= target->data[j];
                             }
                         }
                         else{
                             for (j = 0; j < errori[layer]->cols; j++){
-                                errori[layer]->data[0][j] -= target->data[0][j];
+                                errori[layer]->data[j] -= target->data[j];
                             }
                         }
 
@@ -163,7 +163,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
                         copyValuesInto(con->to->input, fprimei[hiddenLayer]);
                         float (*derivative)(float) = activationDerivative(con->to->activation);
                         for (j = 0; j < fprimei[hiddenLayer]->cols; j++){
-                            fprimei[hiddenLayer]->data[0][j] = derivative(fprimei[hiddenLayer]->data[0][j]);
+                            fprimei[hiddenLayer]->data[j] = derivative(fprimei[hiddenLayer]->data[j]);
                         }
                         hadamardInto(errorLastTi[hiddenLayer], fprimei[hiddenLayer], errori[layer]);
 
@@ -257,7 +257,7 @@ void batchGradientDescent(Network* network, Matrix* data, Matrix* classes, LOSS_
             // if verbose is set, print loss every 100 epochs
             if (verbose != 0){
                 if (epoch % 100 == 0 || epoch == 1){
-                    forwardPass(network, data);
+                    forwardPassDataSet(network, data);
                     if (lossFunction == CROSS_ENTROPY_LOSS){
                         printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
                     }

@@ -3,30 +3,49 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-// represents a matrix of data
-typedef struct Matrix_ {
+// represents user training data
+typedef struct DataSet_ {
     size_t rows;
     size_t cols;
     float** data;
+} DataSet;
+
+// represents a matrix of data in row-major order
+typedef struct Matrix_ {
+    size_t rows;
+    size_t cols;
+    float* data;
 } Matrix;
 
-/*
-    Generally, there are two types of functions here.
-    
-    Functions either take in arguments, and return the output,
-    or they take in the neccesary arguments plus the matrix in 
-    which the output is placed, and return nothing. The argument 
-    ordering is generally: [operation arguments] [output]. 
-*/
-
-// creates a matrix given data
-static Matrix* createMatrix(size_t rows, size_t cols, float** data);
-
-// creates a matrix zeroed out
-static Matrix* createMatrixZeroes(int rows, int cols);
+// create dataset given user data
+static DataSet* createDataSet(size_t rows, size_t cols, float** data);
 
 // uses memory of the original data to split matrix into submatrices
-static Matrix** createBatches(Matrix* allData, int numBatches);
+static DataSet** createBatches(DataSet* allData, int numBatches);
+
+// split a dataset into row matrices
+static Matrix** splitRows(DataSet* dataset);
+
+// shuffle two datasets, maintaining alignment between their rows
+static void shuffleTogether(DataSet* A, DataSet* B);
+
+// destroy dataset
+static void destroyDataSet(DataSet* dataset);
+
+// convert dataset to matrix
+static Matrix* dataSetToMatrix(DataSet* dataset);
+
+// creates a matrix given data
+static Matrix* createMatrix(size_t rows, size_t cols, float* data);
+
+// creates a matrix zeroed out
+static Matrix* createMatrixZeroes(size_t rows, size_t cols);
+
+// get an element of a matrix
+static float get(Matrix* mat, size_t row, size_t col);
+
+// set an element of a matrix
+static void set(Matrix* mat, size_t row, size_t col, float val);
 
 // sets the values in $to equal to values in $from
 static void copyValuesInto(Matrix* from, Matrix* to);
@@ -42,9 +61,6 @@ static Matrix* transpose(Matrix* orig);
 
 // transposes matrix and places data into $origT
 static void transposeInto(Matrix* orig, Matrix* origT);
-
-// collapses matrix into row vector of column averages
-static Matrix* columnAverages(Matrix* orig);
 
 // adds two matrices and returns result
 static Matrix* add(Matrix* A, Matrix* b);
@@ -76,9 +92,6 @@ static Matrix* copy(Matrix* orig);
 // returns 1 if matrices are equal, 0 otherwise
 static int equals(Matrix* A, Matrix* B);
 
-// shuffle two matrices, maintaining alignment between their rows
-static void shuffleTogether(Matrix* A, Matrix* B);
-
 // frees a matrix and its data
 static void destroyMatrix(Matrix* matrix);
 
@@ -87,31 +100,16 @@ static void destroyMatrix(Matrix* matrix);
     Begin functions.
 */
 
-Matrix* createMatrix(size_t rows, size_t cols, float** data){
-    assert(rows > 0 && cols > 0);
-    Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
-    matrix->rows = rows;
-    matrix->cols = cols;
-    matrix->data = data;
-    return matrix;
+static DataSet* createDataSet(size_t rows, size_t cols, float** data){
+    DataSet* dataset = (DataSet*)malloc(sizeof(DataSet));
+    dataset->rows = rows;
+    dataset->cols = cols;
+    dataset->data = data;
+    return dataset;
 }
 
-Matrix* createMatrixZeroes(int rows, int cols){
-    assert(rows > 0 && cols > 0);
-    Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
-    matrix->rows = rows;
-    matrix->cols = cols;
-    float** data = (float**)calloc(rows, sizeof(float*));
-    int i;
-    for (i = 0; i < rows; i++){
-        data[i] = (float*)calloc(cols, sizeof(float));
-    }
-    matrix->data = data;
-    return matrix;
-}
-
-Matrix** createBatches(Matrix* allData, int numBatches){
-    Matrix** batches = (Matrix**)malloc(sizeof(Matrix*) * numBatches);
+DataSet** createBatches(DataSet* allData, int numBatches){
+    DataSet** batches = (DataSet**)malloc(sizeof(DataSet*) * numBatches);
     int remainder = allData->rows % numBatches;
     int i;
     int curRow = 0;
@@ -120,18 +118,88 @@ Matrix** createBatches(Matrix* allData, int numBatches){
         if (remainder-- > 0){
             batchSize++;
         }
-        batches[i] = createMatrix(batchSize, allData->cols, allData->data + curRow);
+        batches[i] = createDataSet(batchSize, allData->cols, allData->data + curRow);
         curRow += batchSize;
     }
     return batches;
 }
 
+static Matrix** splitRows(DataSet* dataset){
+    Matrix** rows = (Matrix**)malloc(sizeof(Matrix*) * dataset->rows);
+    int i;
+    for (i = 0; i < dataset->rows; i++){
+        rows[i] = createMatrix(1, dataset->cols, dataset->data[i]);
+    }
+    return rows;
+}
+
+void shuffleTogether(DataSet* A, DataSet* B){
+    assert(A->rows == B->rows);
+    int i;
+    for (i = 0; i < A->rows - 1; i++){
+        size_t j = i + rand() / (RAND_MAX / (A->rows - i) + 1);
+        float* tmpA = A->data[j];
+        A->data[j] = A->data[i];
+        A->data[i] = tmpA;
+        float* tmpB = B->data[j];
+        B->data[j] = B->data[i];
+        B->data[i] = tmpB;
+    }
+}
+
+static void destroyDataSet(DataSet* dataset){
+    int i;
+    for (i = 0; i < dataset->rows; i++){
+        free(dataset->data[i]);
+    }
+    free(dataset->data);
+    free(dataset);
+}
+
+static Matrix* dataSetToMatrix(DataSet* dataset){
+    Matrix* convert = (Matrix*)malloc(sizeof(Matrix));
+    convert->rows = dataset->rows;
+    convert->cols = dataset->cols;
+    convert->data = (float*)malloc(sizeof(float) * dataset->rows * dataset->cols);
+    int i, j;
+    for (i = 0; i < dataset->rows; i++){
+        for (j = 0; j < dataset->cols; j++){
+            set(convert, i, j, dataset->data[i][j]);
+        }
+    }
+    return convert;
+}
+
+Matrix* createMatrix(size_t rows, size_t cols, float* data){
+    assert(rows > 0 && cols > 0);
+    Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
+    matrix->rows = rows;
+    matrix->cols = cols;
+    matrix->data = data;
+    return matrix;
+}
+
+Matrix* createMatrixZeroes(size_t rows, size_t cols){
+    assert(rows > 0 && cols > 0);
+    Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
+    matrix->rows = rows;
+    matrix->cols = cols;
+    float* data = (float*)calloc(rows * cols, sizeof(float));
+    matrix->data = data;
+    return matrix;
+}
+
+static float get(Matrix* mat, size_t row, size_t col){
+    return mat->data[row * mat->cols + col];
+}
+
+static void set(Matrix* mat, size_t row, size_t col, float val){
+    mat->data[row * mat->cols + col] = val;
+}
+
 void copyValuesInto(Matrix* from, Matrix* to){
     assert(from->rows == to->rows && from->cols == to->cols);
-    int i;
-    for (i = 0; i < from->rows; i++){
-        memcpy(to->data[i], from->data[i], sizeof(float) * from->cols);
-    }
+    memcpy(to->data, from->data, sizeof(float) * to->rows * to->cols);
 }
 
 void printMatrix(Matrix* input){
@@ -139,30 +207,23 @@ void printMatrix(Matrix* input){
     for (i = 0; i < input->rows; i++){
         printf("\n");
         for (j = 0; j < input->cols; j++){
-            printf("%.2f ", input->data[i][j]);
+            printf("%.2f ", get(input, i, j));
         }
     }
     printf("\n");
 }
 
 void zeroMatrix(Matrix* orig){
-    int i;
-    for (i = 0; i < orig->rows; i++){
-        memset(orig->data[i], 0, orig->cols * sizeof(float));
-    }
+    memset(orig->data, 0, orig->rows * orig->cols * sizeof(float));
 }
 
 Matrix* transpose(Matrix* orig){
-    float** data = (float**)malloc(sizeof(float*) * orig->cols);
-    int k;
-    for (k = 0; k < orig->cols; k++){
-        data[k] = (float*)malloc(sizeof(float) * orig->rows);
-    }
+    float* data = (float*)malloc(sizeof(float) * orig->rows * orig->cols);
     Matrix* transpose = createMatrix(orig->cols, orig->rows, data);
     int i, j;
     for (i = 0; i < orig->rows; i++){
         for (j = 0; j < orig->cols; j++){
-            transpose->data[j][i] = orig->data[i][j];
+            set(transpose, i, j, get(orig, i, j));
         }
     }
     return transpose;
@@ -173,37 +234,19 @@ void transposeInto(Matrix* orig, Matrix* origT){
     int i, j;
     for (i = 0; i < orig->rows; i++){
         for (j = 0; j < orig->cols; j++){
-            origT->data[j][i] = orig->data[i][j];
+            set(origT, j, i, get(orig, i, j));
         }
     }
-}
-
-Matrix* columnAverages(Matrix* orig){
-    float** data = (float**)malloc(sizeof(float*));
-    data[0] = (float*)malloc(sizeof(float) * orig->cols);
-    int i, j;
-    for (i = 0; i < orig->cols; i++){
-        float colSum = 0;
-        for (j = 0; j < orig->rows; j++){
-            colSum += orig->data[j][i];
-        }
-        data[0][i] = colSum / orig->rows;
-    }
-    return createMatrix(1, orig->cols, data);
 }
 
 Matrix* add(Matrix* A, Matrix* B){
     assert(A->rows == B->rows && A->cols == B->cols);
-    float** data = (float**)malloc(sizeof(float*) * A->rows);
-    int k;
-    for (k = 0; k < A->rows; k++){
-        data[k] = (float*)malloc(sizeof(float) * A->cols);
-    }
+    float* data = (float*)malloc(sizeof(float) * A->rows * B->rows);
     Matrix* result = createMatrix(A->rows, A->cols, data);
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            data[i][j] = A->data[i][j] + B->data[i][j];
+            set(result, i, j, get(B, i, j) + get(A, i, j));
         }
     }
     return result;
@@ -214,7 +257,7 @@ void addTo(Matrix* from, Matrix* to){
     int i, j;
     for (i = 0; i < from->rows; i++){
         for (j = 0; j < from->cols; j++){
-            to->data[i][j] += from->data[i][j];
+            set(to, i, j, get(from, i, j) + get(to, i, j));
         }
     }
 }
@@ -222,16 +265,12 @@ void addTo(Matrix* from, Matrix* to){
 // add B to each row of A
 Matrix* addToEachRow(Matrix* A, Matrix* B){
     assert(A->cols == B->cols && B->rows == 1);
-    float** data = (float**)malloc(sizeof(float*) * A->rows);
-    int k;
-    for (k = 0; k < A->rows; k++){
-        data[k] = (float*)malloc(sizeof(float) * A->cols);
-    }
+    float* data = (float*)malloc(sizeof(float) * A->rows * A->cols);
     Matrix* result = createMatrix(A->rows, A->cols, data);
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            data[i][j] = A->data[i][j] + B->data[0][j];
+            set(result, i, j, get(A, i, j) + get(B, 0, j));
         }
     }
     return result;
@@ -241,18 +280,14 @@ void scalarMultiply(Matrix* orig, float c){
     int i, j;
     for (i = 0; i < orig->rows; i++){
         for (j = 0; j < orig->cols; j++){
-            orig->data[i][j] *= c;
+            set(orig, i, j, get(orig, i, j) * c);
         }
     }
 }
 
 Matrix* multiply(Matrix* A, Matrix* B){
     assert(A->cols == B->rows);
-    float** data = (float**)malloc(sizeof(float*) * A->rows);
-    int k;
-    for (k = 0; k < A->rows; k++){
-        data[k] = (float*)malloc(sizeof(float) * B->cols);
-    }
+    float* data = (float*)malloc(sizeof(float) * A->rows * B->cols);
     Matrix* result = createMatrix(A->rows, B->cols, data);
     int i, j;
     for (i = 0; i < A->rows; i++){
@@ -260,9 +295,9 @@ Matrix* multiply(Matrix* A, Matrix* B){
             float sum = 0;
             int k;
             for (k = 0; k < B->rows; k++){
-                sum += A->data[i][k] * B->data[k][j];
+                sum += get(A, i, k) * get(B, k, j);
             }
-            data[i][j] = sum;
+            set(result, i, j, sum);
         }
     }
     return result;
@@ -277,25 +312,21 @@ void multiplyInto(Matrix* A, Matrix* B, Matrix* into){
             float sum = 0;
             int k;
             for (k = 0; k < B->rows; k++){
-                sum += A->data[i][k] * B->data[k][j];
+                sum += get(A, i, k) * get(B, k, j);
             }
-            into->data[i][j] = sum;
+            set(into, i, j, sum);
         }
     }
 }
 
 Matrix* hadamard(Matrix* A, Matrix* B){
     assert(A->rows == B->rows && A->cols == B->cols);
-    float** data = (float**)malloc(sizeof(float*) * A->rows);
-    int k;
-    for (k = 0; k < A->rows; k++){
-        data[k] = (float*)malloc(sizeof(float) * A->cols);
-    }
+    float* data = (float*)malloc(sizeof(float) * A->rows * A->cols);
     Matrix* result = createMatrix(A->rows, A->cols, data);
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            data[i][j] = A->data[i][j] * B->data[i][j];
+            set(result, i, j, get(A, i, j) * get(B, i, j));
         }
     }
     return result;
@@ -307,18 +338,14 @@ void hadamardInto(Matrix* A, Matrix* B, Matrix* into){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            into->data[i][j] = A->data[i][j] * B->data[i][j];
+            set(into, i, j, get(A, i, j) * get(B, i, j));
         }
     }
 }
 
 Matrix* copy(Matrix* orig){
-    float** data = (float**)malloc(sizeof(float*) * orig->rows);
-    int i;
-    for (i = 0; i < orig->rows; i++){
-        data[i] = (float*)malloc(sizeof(float) * orig->cols);
-        memcpy(data[i], orig->data[i], sizeof(float) * orig->cols);
-    }
+    float* data = (float*)malloc(sizeof(float) * orig->rows * orig->cols);
+    memcpy(data, orig->data, sizeof(float) * orig->cols * orig->rows);
     return createMatrix(orig->rows, orig->cols, data);
 }
 
@@ -332,7 +359,7 @@ int equals(Matrix* A, Matrix* B){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            if (A->data[i][j] != B->data[i][j]){
+            if (get(A, i, j) != get(B, i, j)){
                 return 0;
             }
         }
@@ -340,25 +367,7 @@ int equals(Matrix* A, Matrix* B){
     return 1;
 }
 
-void shuffleTogether(Matrix* A, Matrix* B){
-    assert(A->rows == B->rows);
-    int i;
-    for (i = 0; i < A->rows - 1; i++){
-        size_t j = i + rand() / (RAND_MAX / (A->rows - i) + 1);
-        float* tmpA = A->data[j];
-        A->data[j] = A->data[i];
-        A->data[i] = tmpA;
-        float* tmpB = B->data[j];
-        B->data[j] = B->data[i];
-        B->data[i] = tmpB;
-    }
-}
-
 void destroyMatrix(Matrix* matrix){
-    int i;
-    for (i = 0; i < matrix->rows; i++){
-        free(matrix->data[i]);
-    }
     free(matrix->data);
     free(matrix);
 }
