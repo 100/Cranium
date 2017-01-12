@@ -5,7 +5,7 @@
 <br>
 
 [![Build Status](https://travis-ci.org/100/Cranium.svg?branch=master)](https://travis-ci.org/100/Cranium)
-[![DUB](https://img.shields.io/dub/l/vibe-d.svg)]()
+[![DUB](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/100/Cranium/blob/master/LICENSE)
 
 ## *Cranium* is a portable, header-only, feedforward artificial neural network library written in vanilla C99. 
 
@@ -126,3 +126,11 @@ destroyNetwork(previousNet);
 To run tests, look in the ```tests``` folder. 
 
 The ```Makefile``` has commands to run each batch of unit tests, or all of them at once.
+
+<hr>
+
+## Contributing
+
+Feel free to send a pull request if you want to add any features or if you find a bug.
+
+Check the issues tab for some potential things to do.
