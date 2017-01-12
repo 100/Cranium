@@ -38,33 +38,33 @@ int main(){
     // test transpose
     Matrix* transposed = transpose(B);
     assert(transposed->rows == 4 && transposed->cols == 3);
-    assert(get(transposed, 0, 1) == get(B, 1, 0));
+    assert(getMatrix(transposed, 0, 1) == getMatrix(B, 1, 0));
 
     // test addition
     Matrix* sum = add(A, A);
     assert(sum != NULL);
     assert(sum->rows == A->rows);
     assert(sum->cols == A->cols);
-    assert(get(sum, 0, 0) == 0);
-    assert(get(sum, 2, 2) == 8);
+    assert(getMatrix(sum, 0, 0) == 0);
+    assert(getMatrix(sum, 2, 2) == 8);
 
     // test multiplication
     Matrix* product = multiply(A, B);
     assert(product != NULL);
     assert(product->rows == A->rows);
     assert(product->cols == B->cols);
-    assert(get(product, 0, 0) == 5);
-    assert(get(product, 2, 3) == 38);
+    assert(getMatrix(product, 0, 0) == 5);
+    assert(getMatrix(product, 2, 3) == 38);
 
     // test hadamard
     Matrix* hadamardProduct = hadamard(A, A);
-    assert(get(hadamardProduct, 1, 2) == get(A, 1, 2) * get(A, 1, 2));
+    assert(getMatrix(hadamardProduct, 1, 2) == getMatrix(A, 1, 2) * getMatrix(A, 1, 2));
 
     // test copy
     Matrix* copied = copy(A);
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->rows; j++){
-            assert(get(copied, i, j) == get(A, i, j));
+            assert(getMatrix(copied, i, j) == getMatrix(A, i, j));
         }
     }
 

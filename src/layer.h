@@ -80,12 +80,12 @@ Connection* createConnection(Layer* from, Layer* to){
 void initializeConnection(Connection* connection){
     int i, j;
     for (i = 0; i < connection->bias->cols; i++){
-        set(connection->bias, 0, i, 0);
+        setMatrix(connection->bias, 0, i, 0);
     }
     for (i = 0; i < connection->weights->rows; i++){
         for (j = 0; j < connection->weights->cols; j++){
             int neuronsIn = connection->weights->rows;
-            set(connection->weights, i, j, box_muller() / sqrt(neuronsIn));
+            setMatrix(connection->weights, i, j, box_muller() / sqrt(neuronsIn));
         }
     }
 }

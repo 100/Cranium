@@ -48,10 +48,10 @@ static Matrix* createMatrix(size_t rows, size_t cols, float* data);
 static Matrix* createMatrixZeroes(size_t rows, size_t cols);
 
 // get an element of a matrix
-static float get(Matrix* mat, size_t row, size_t col);
+static float getMatrix(Matrix* mat, size_t row, size_t col);
 
 // set an element of a matrix
-static void set(Matrix* mat, size_t row, size_t col, float val);
+static void setMatrix(Matrix* mat, size_t row, size_t col, float val);
 
 // sets the values in $to equal to values in $from
 static void copyValuesInto(Matrix* from, Matrix* to);
@@ -170,7 +170,7 @@ static Matrix* dataSetToMatrix(DataSet* dataset){
     int i, j;
     for (i = 0; i < dataset->rows; i++){
         for (j = 0; j < dataset->cols; j++){
-            set(convert, i, j, dataset->data[i][j]);
+            setMatrix(convert, i, j, dataset->data[i][j]);
         }
     }
     return convert;
@@ -195,11 +195,11 @@ Matrix* createMatrixZeroes(size_t rows, size_t cols){
     return matrix;
 }
 
-static float get(Matrix* mat, size_t row, size_t col){
+static float getMatrix(Matrix* mat, size_t row, size_t col){
     return mat->data[row * mat->cols + col];
 }
 
-static void set(Matrix* mat, size_t row, size_t col, float val){
+static void setMatrix(Matrix* mat, size_t row, size_t col, float val){
     mat->data[row * mat->cols + col] = val;
 }
 
@@ -213,7 +213,7 @@ void printMatrix(Matrix* input){
     for (i = 0; i < input->rows; i++){
         printf("\n");
         for (j = 0; j < input->cols; j++){
-            printf("%.2f ", get(input, i, j));
+            printf("%.2f ", getMatrix(input, i, j));
         }
     }
     printf("\n");
@@ -229,7 +229,7 @@ Matrix* transpose(Matrix* orig){
     int i, j;
     for (i = 0; i < orig->rows; i++){
         for (j = 0; j < orig->cols; j++){
-            set(transpose, i, j, get(orig, i, j));
+            setMatrix(transpose, i, j, getMatrix(orig, i, j));
         }
     }
     return transpose;
@@ -240,7 +240,7 @@ void transposeInto(Matrix* orig, Matrix* origT){
     int i, j;
     for (i = 0; i < orig->rows; i++){
         for (j = 0; j < orig->cols; j++){
-            set(origT, j, i, get(orig, i, j));
+            setMatrix(origT, j, i, getMatrix(orig, i, j));
         }
     }
 }
@@ -252,7 +252,7 @@ Matrix* add(Matrix* A, Matrix* B){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            set(result, i, j, get(B, i, j) + get(A, i, j));
+            setMatrix(result, i, j, getMatrix(B, i, j) + getMatrix(A, i, j));
         }
     }
     return result;
@@ -263,7 +263,7 @@ void addTo(Matrix* from, Matrix* to){
     int i, j;
     for (i = 0; i < from->rows; i++){
         for (j = 0; j < from->cols; j++){
-            set(to, i, j, get(from, i, j) + get(to, i, j));
+            setMatrix(to, i, j, getMatrix(from, i, j) + getMatrix(to, i, j));
         }
     }
 }
@@ -276,7 +276,7 @@ Matrix* addToEachRow(Matrix* A, Matrix* B){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            set(result, i, j, get(A, i, j) + get(B, 0, j));
+            setMatrix(result, i, j, getMatrix(A, i, j) + getMatrix(B, 0, j));
         }
     }
     return result;
@@ -286,7 +286,7 @@ void scalarMultiply(Matrix* orig, float c){
     int i, j;
     for (i = 0; i < orig->rows; i++){
         for (j = 0; j < orig->cols; j++){
-            set(orig, i, j, get(orig, i, j) * c);
+            setMatrix(orig, i, j, getMatrix(orig, i, j) * c);
         }
     }
 }
@@ -307,9 +307,9 @@ Matrix* multiply(Matrix* A, Matrix* B){
             float sum = 0;
             int k;
             for (k = 0; k < B->rows; k++){
-                sum += get(A, i, k) * get(B, k, j);
+                sum += getMatrix(A, i, k) * getMatrix(B, k, j);
             }
-            set(result, i, j, sum);
+            setMatrix(result, i, j, sum);
         }
     }
     return result;
@@ -330,9 +330,9 @@ void multiplyInto(Matrix* A, Matrix* B, Matrix* into){
             float sum = 0;
             int k;
             for (k = 0; k < B->rows; k++){
-                sum += get(A, i, k) * get(B, k, j);
+                sum += getMatrix(A, i, k) * getMatrix(B, k, j);
             }
-            set(into, i, j, sum);
+            setMatrix(into, i, j, sum);
         }
     }
 }
@@ -344,7 +344,7 @@ Matrix* hadamard(Matrix* A, Matrix* B){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            set(result, i, j, get(A, i, j) * get(B, i, j));
+            setMatrix(result, i, j, getMatrix(A, i, j) * getMatrix(B, i, j));
         }
     }
     return result;
@@ -356,7 +356,7 @@ void hadamardInto(Matrix* A, Matrix* B, Matrix* into){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            set(into, i, j, get(A, i, j) * get(B, i, j));
+            setMatrix(into, i, j, getMatrix(A, i, j) * getMatrix(B, i, j));
         }
     }
 }
@@ -377,7 +377,7 @@ int equals(Matrix* A, Matrix* B){
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < A->cols; j++){
-            if (get(A, i, j) != get(B, i, j)){
+            if (getMatrix(A, i, j) != getMatrix(B, i, j)){
                 return 0;
             }
         }

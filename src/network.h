@@ -132,7 +132,7 @@ float crossEntropyLoss(Network* network, Matrix* prediction, DataSet* actual, fl
     for (i = 0; i < prediction->rows; i++){
         float cur_err = 0;
         for (j = 0; j < prediction->cols; j++){
-            cur_err += actual->data[i][j] * logf(MAX(FLT_MIN, get(prediction, i, j)));
+            cur_err += actual->data[i][j] * logf(MAX(FLT_MIN, getMatrix(prediction, i, j)));
         }
         total_err += cur_err;
     }
@@ -142,7 +142,7 @@ float crossEntropyLoss(Network* network, Matrix* prediction, DataSet* actual, fl
             Matrix* weights = network->connections[i]->weights;
             for (j = 0; j < weights->rows; j++){
                 for (k = 0; k < weights->cols; k++){
-                    reg_err += get(weights, j, k) * get(weights, j, k);
+                    reg_err += getMatrix(weights, j, k) * getMatrix(weights, j, k);
                 }
             }
         }
@@ -159,7 +159,7 @@ float meanSquaredError(Network* network, Matrix* prediction, DataSet* actual, fl
     for (i = 0; i < prediction->rows; i++){
         float cur_err = 0;
         for (j = 0; j < prediction->cols; j++){
-            float tmp = actual->data[i][j] - get(prediction, i, j);
+            float tmp = actual->data[i][j] - getMatrix(prediction, i, j);
             cur_err += tmp * tmp;
         }
         total_err += cur_err;
@@ -170,7 +170,7 @@ float meanSquaredError(Network* network, Matrix* prediction, DataSet* actual, fl
             Matrix* weights = network->connections[i]->weights;
             for (j = 0; j < weights->rows; j++){
                 for (k = 0; k < weights->cols; k++){
-                    reg_err += get(weights, j, k) * get(weights, j, k);
+                    reg_err += getMatrix(weights, j, k) * getMatrix(weights, j, k);
                 }
             }
         }
@@ -189,7 +189,7 @@ int* predict(Network* network){
     for (i = 0; i < outputLayer->input->rows; i++){
         max = 0;
         for (j = 1; j < outputLayer->size; j++){
-            if (get(outputLayer->input, i, j) > get(outputLayer->input, i, max)){
+            if (getMatrix(outputLayer->input, i, j) > getMatrix(outputLayer->input, i, max)){
                 max = j;
             }
         }
@@ -250,7 +250,7 @@ void saveNetwork(Network* network, char* path){
         Connection* con = network->connections[k];
         for (i = 0; i < con->weights->rows; i++){
             for (j = 0; j < con->weights->cols; j++){
-                fprintf(fp, "%a\n", get(con->weights, i, j));
+                fprintf(fp, "%a\n", getMatrix(con->weights, i, j));
             }
         }
     }
@@ -259,7 +259,7 @@ void saveNetwork(Network* network, char* path){
     for (k = 0; k < network->numConnections; k++){
         Connection* con = network->connections[k];
         for (i = 0; i < con->bias->cols; i++){
-            fprintf(fp, "%a\n", get(con->bias, 0, i));
+            fprintf(fp, "%a\n", getMatrix(con->bias, 0, i));
         }
     }
 
