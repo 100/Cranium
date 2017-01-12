@@ -5,7 +5,7 @@
 <br>
 
 [![Build Status](https://travis-ci.org/100/Cranium.svg?branch=master)](https://travis-ci.org/100/Cranium)
-[![DUB](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/100/Cranium/blob/master/LICENSE)
+<a href="https://github.com/100/Cranium/blob/master/LICENSE"><img src="docs/license.svg"></img></a>
 
 ## *Cranium* is a portable, header-only, feedforward artificial neural network library written in vanilla C99. 
 
