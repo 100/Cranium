@@ -118,7 +118,7 @@ int main(){
         classesReg[i][0] = dataReg[i][0] * dataReg[i][0] + 15;
     }
     DataSet* trainingClassesReg = createDataSet(1000, 1, classesReg);
-
+    
     size_t hiddenSizeReg[] = {20};
     void (*hiddenActivationsReg[])(Matrix*) = {relu};
     Network* networkReg = createNetwork(1, 1, hiddenSizeReg, hiddenActivationsReg, 1, linear);

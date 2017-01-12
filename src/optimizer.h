@@ -259,10 +259,10 @@ void batchGradientDescent(Network* network, DataSet* data, DataSet* classes, LOS
                 if (epoch % 100 == 0 || epoch == 1){
                     forwardPassDataSet(network, data);
                     if (lossFunction == CROSS_ENTROPY_LOSS){
-                        printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
+                        printf("EPOCH %d: loss is %f\n", epoch, crossEntropyLoss(network, getOuput(network), classes, regularizationStrength));
                     }
                     else{
-                        printf("EPOCH %d: loss is %f\n", epoch, meanSquaredError(network, network->layers[network->numLayers - 1]->input, classes, regularizationStrength));
+                        printf("EPOCH %d: loss is %f\n", epoch, meanSquaredError(network, getOuput(network), classes, regularizationStrength));
                     }
                 }
             }

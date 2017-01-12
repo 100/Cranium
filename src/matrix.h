@@ -9,7 +9,7 @@
 #include <cblas.h>
 #endif
 
-// represents user training data
+// represents user-supplied training data
 typedef struct DataSet_ {
     size_t rows;
     size_t cols;
@@ -26,7 +26,7 @@ typedef struct Matrix_ {
 // create dataset given user data
 static DataSet* createDataSet(size_t rows, size_t cols, float** data);
 
-// uses memory of the original data to split matrix into submatrices
+// uses memory of the original data to split dataset into batches
 static DataSet** createBatches(DataSet* allData, int numBatches);
 
 // split a dataset into row matrices

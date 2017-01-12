@@ -68,10 +68,28 @@ int main(){
         }
     }
 
+    // test conversion
+    float** datasetData = (float**)malloc(sizeof(float*) * 3);
+    datasetData[0] = (float*)malloc(sizeof(float) * 3);
+    datasetData[1] = (float*)malloc(sizeof(float) * 3);
+    datasetData[2] = (float*)malloc(sizeof(float) * 3);
+    datasetData[0][0] = 1;
+    datasetData[1][1] = 1;
+    datasetData[2][2] = 1;
+    DataSet* ds = createDataSet(3, 3, datasetData);
+    Matrix* mds = dataSetToMatrix(ds);
+    for (i = 0; i < 3; i++){
+        for (j = 0; j < 3; j++){
+            assert(ds->data[i][j] == getMatrix(mds, i, j));
+        }
+    }
+
     // test destroy
     destroyMatrix(A);
     destroyMatrix(B);
     destroyDataSet(C);
+    destroyDataSet(ds);
+    destroyMatrix(mds);
     for (i = 0; i < 6; i++){
         free(batches[i]);
     }
