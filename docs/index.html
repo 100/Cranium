@@ -3,29 +3,29 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="prism.css" data-noprefix>
     <style>
-    body{
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .nav li {
-        font-size: 20px;
-        padding-top: 5px;
-    }
-    h1 {
-        margin-top: 0px;
-        margin-bottom: 30px;
-        font-size: 350%;
-    }
-    h2 {
-        font-size: 300%;
-        padding-top: 80px;
-    }
-    h3 {
-        padding-top: 30px;
-    }
-    h4 {
-        font-size: 110%;
-    }
+        body{
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .nav li {
+            font-size: 20px;
+            padding-top: 5px;
+        }
+        h1 {
+            margin-top: 0px;
+            margin-bottom: 30px;
+            font-size: 350%;
+        }
+        h2 {
+            font-size: 300%;
+            padding-top: 80px;
+        }
+        h3 {
+            padding-top: 30px;
+        }
+        h4 {
+            font-size: 110%;
+        }
     </style>
 </head>
 <body>
@@ -34,15 +34,24 @@
         <div class="row">
             <div class="col-xs-12">
                 <img src="image.png"></img><br>
+                <h2 style="padding-top: 0px;"><a href="https://github.com/100/Cranium">&#128279; GitHub</a></h2>
                 <br><br>
                 <h1>Documentation</h1>
                 <div class="nav"><ul>
                     <li><a href="#structures"><b>Structures</b></a>
                         <ul>
+                            <li><a href="#dataset">DataSet</a></li>
                             <li><a href="#matrix">Matrix</a></li>
                             <li><a href="#layer">Layer</a></li>
                             <li><a href="#connection">Connection</a></li>
                             <li><a href="#network">Network</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#data"><b>Training Data Functions</b></a>
+                        <ul>
+                            <li><a href="#createDataSet">createDataSet</a></li>
+                            <li><a href="#createBatches">createBatches</a></li>
+                            <li><a href="#destroyDataSet">destroyDataSet</a></li>
                         </ul>
                     </li>
                      <li><a href="#functions"><b>Network Functions</b></a>
@@ -54,8 +63,10 @@
                             <li><a href="#destroyNetwork">destroyNetwork</a></li>
                             <li><a href="#optimize">optimize</a></li>
                             <li><a href="#forwardPass">forwardPass</a></li>
+                            <li><a href="#forwardPassDataSet">forwardPassDataSet</a></li>
                             <li><a href="#getOutput">getOuput</a></li>
                             <li><a href="#predict">predict</a></li>
+                            <li><a href="#accuracy">accuracy</a></li>
                         </ul>
                     </li>
                     <li><a href="#serialization"><b>Serialization Functions</b></a>
@@ -71,13 +82,37 @@
 
                 <hr>
 
+                <h3 id="dataset">DataSet</h3>
+                <h4>Structure to hold user training data and keep track of dimensions</h4>
+                <pre><code class="language-c">
+typedef struct DataSet_ {
+    size_t rows;
+    size_t cols;
+    float** data;
+} DataSet;
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>rows</b>
+                        <br>
+                        <p>The number of rows in the dataset</p>
+                    </li>
+                    <li class="list-group-item"><b>cols</b>
+                        <br>
+                        <p>The number of columns in the dataset</p>
+                    </li>
+                    <li class="list-group-item"><b>data</b>
+                        <br>
+                        <p>The data held in the dataset, of the aforementioned dimensions</p>
+                    </li>
+                </ul>
+
                 <h3 id="matrix">Matrix</h3>
-                <h4>Structure to hold data and keep track of dimensions</h4>
+                <h4>Structure to hold internal network data and keep track of dimensions</h4>
                 <pre><code class="language-c">
 typedef struct Matrix_ {
     size_t rows;
     size_t cols;
-    float** data;
+    float* data;
 } Matrix;
                 </code></pre>
                 <ul class="list-group">
@@ -91,7 +126,7 @@ typedef struct Matrix_ {
                     </li>
                     <li class="list-group-item"><b>data</b>
                         <br>
-                        <p>The data held in the matrix, of the aforementioned dimensions</p>
+                        <p>The data held in the matrix, stored one-dimensionally in row-major order</p>
                     </li>
                 </ul>
 
@@ -189,6 +224,61 @@ typedef struct Network_ {
                     </li>
                 </ul>
                 
+
+                <br>
+                <h2 id="data">Training Data Functions</h2>
+
+                <hr>
+
+                <h3 id="createDataSet">createDataSet</h3>
+                <h4>Returns a pointer to a dataset of the given size and with the given data using the provided pointer</h4>
+                <pre><code class="language-c">
+DataSet* createDataSet(size_t rows, size_t cols, float** data);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>rows</b>
+                        <br>
+                        <p>The number of rows in the dataset</p>
+                    </li>
+                    <li class="list-group-item"><b>cols</b>
+                        <br>
+                        <p>The number of columns in the dataset</p>
+                    </li>
+                    <li class="list-group-item"><b>data</b>
+                        <br>
+                        <p>The data, of the aforementioned dimensions, to be put into the dataset</p>
+                    </li>
+                </ul>
+
+                <h3 id="createBatches">createBatches</h3>
+                <h4>Returns a dataset split into a given number of batches, individually represented as dataset pointers</h4>
+                <pre><code class="language-c">
+DataSet** createBatches(DataSet* allData, int numBatches);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>allData</b>
+                        <br>
+                        <p>The overall dataset to be split</p>
+                    </li>
+                    <li class="list-group-item"><b>numBatches</b>
+                        <br>
+                        <p>The number of batches to split the dataset into</p>
+                    </li>
+                </ul>
+
+                <h3 id="destroyDataSet">destroyDataSet</h3>
+                <h4>Frees a dataset and its data</h4>
+                <pre><code class="language-c">
+void destroyDataSet(DataSet* dataset);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>dataset</b>
+                        <br>
+                        <p>The dataset to be freed</p>
+                    </li>
+                </ul>
+
+
                 <br>
                 <h2 id="functions">Network Functions</h2>
 
@@ -225,7 +315,7 @@ typedef void (*Activation)(Matrix*);
                 <h3 id="createMatrix">createMatrix</h3>
                 <h4>Returns a pointer to a matrix of the given size and with the given data using the provided pointer</h4>
                 <pre><code class="language-c">
-Matrix* createMatrix(size_t rows, size_t cols, float** data);
+Matrix* createMatrix(size_t rows, size_t cols, float* data);
                 </code></pre>
                 <ul class="list-group">
                     <li class="list-group-item"><b>rows</b>
@@ -311,8 +401,8 @@ typedef enum LOSS_FUNCTION_ {
                 <pre><code class="language-c">
 typedef struct ParameterSet_ {
     Network* network;
-    Matrix* data;
-    Matrix* classes;
+    DataSet* data;
+    DataSet* classes;
     LOSS_FUNCTION lossFunction;
     size_t batchSize;
     float learningRate;
@@ -385,9 +475,25 @@ void optimize(ParameterSet params);
                 </ul>
 
                 <h3 id="forwardPass">forwardPass</h3>
-                <h4>Passes input through a network, storing output in the network's last layer</h4>
+                <h4>Passes matrix input through a network, storing output in the network's last layer</h4>
                 <pre><code class="language-c">
 void forwardPass(Network* network, Matrix* input);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to use</p>
+                    </li>
+                    <li class="list-group-item"><b>input</b>
+                        <br>
+                        <p>The data to pass through the network</p>
+                    </li>
+                </ul>
+
+                <h3 id="forwardPassDataSet">forwardPassDataSet</h3>
+                <h4>Passes dataset input through a network, storing output in the network's last layer</h4>
+                <pre><code class="language-c">
+void forwardPassDataSet(Network* network, DataSet* input);
                 </code></pre>
                 <ul class="list-group">
                     <li class="list-group-item"><b>network</b>
@@ -421,6 +527,26 @@ int* predict(Network* network);
                     <li class="list-group-item"><b>network</b>
                         <br>
                         <p>The network to use</p>
+                    </li>
+                </ul>
+
+                <h3 id="accuracy">accuracy</h3>
+                <h4>Returns a float representing the network's accuracy on the provided data's predictions</h4>
+                <pre><code class="language-c">
+float accuracy(Network* network, DataSet* data, DataSet* classes)
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to use</p>
+                    </li>
+                    <li class="list-group-item"><b>data</b>
+                        <br>
+                        <p>The data to test on</p>
+                    </li>
+                    <li class="list-group-item"><b>classes</b>
+                        <br>
+                        <p>The target data to test accuracy against</p>
                     </li>
                 </ul>
 

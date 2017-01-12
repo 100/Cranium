@@ -82,7 +82,7 @@ void sigmoid(Matrix* input){
     int i, j;
     for (i = 0; i < input->rows; i++){
         for (j = 0; j < input->cols; j++){
-            input->data[i][j] = sigmoidFunc(input->data[i][j]); 
+            setMatrix(input, i, j, sigmoidFunc(getMatrix(input, i, j)));
         }
     }
 }
@@ -100,7 +100,7 @@ void relu(Matrix* input){
     int i, j;
     for (i = 0; i < input->rows; i++){
         for (j = 0; j < input->cols; j++){
-            input->data[i][j] = reluFunc(input->data[i][j]); 
+            setMatrix(input, i, j, reluFunc(getMatrix(input, i, j)));
         }
     }
 }
@@ -110,7 +110,7 @@ void tanH(Matrix* input){
     int i, j;
     for (i = 0; i < input->rows; i++){
         for (j = 0; j < input->cols; j++){
-            input->data[i][j] = tanHFunc(input->data[i][j]); 
+            setMatrix(input, i, j, tanHFunc(getMatrix(input, i, j)));
         }
     }
 }
@@ -122,10 +122,10 @@ void softmax(Matrix* input){
         float summed = 0;
         int j;
         for (j = 0; j < input->cols; j++){
-            summed += expf(input->data[i][j]);
+            summed += expf(getMatrix(input, i, j));
         }
         for (j = 0; j < input->cols; j++){
-            input->data[i][j] = expf(input->data[i][j]) / summed; 
+            setMatrix(input, i, j, expf(getMatrix(input, i, j)) / summed);
         }
     }
 }

@@ -1,5 +1,5 @@
 LIBS = -lm
-FLAGS = -std=c99 -Wall -O3 -o
+FLAGS = -std=c99 -Wall -Wno-unused-function -O3 -o
 COMPILER = gcc
 
 tests: matrix_tests function_tests layer_tests network_tests optimizer_tests

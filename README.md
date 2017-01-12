@@ -5,15 +5,15 @@
 <br>
 
 [![Build Status](https://travis-ci.org/100/Cranium.svg?branch=master)](https://travis-ci.org/100/Cranium)
-[![DUB](https://img.shields.io/dub/l/vibe-d.svg)]()
+[![DUB](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/100/Cranium/blob/master/LICENSE)
 
 ## *Cranium* is a portable, header-only, feedforward artificial neural network library written in vanilla C99. 
 
 #### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
-#### In order to maintain portability, BLAS implementations were not used. Feel free to change the ```multiply``` function in ```matrix.h``` to utilize faster methods. Generally, all matrix operations are done through these functions, so it is easy to modify them without changing the rest of the codebase.
+#### Cranium supports CBLAS integration. Simply uncomment line 7 in ```matrix.h``` to enable the BLAS ```sgemm``` function for fast matrix multiplication.
 
-#### Check out the detailed documentation [here](https://100.github.io/Cranium/).
+#### Check out the detailed documentation [here](https://100.github.io/Cranium/) for information on individual structures and functions.
 
 <hr>
 
@@ -35,14 +35,17 @@
 * **Learning rate annealing**
 * **Simple momentum**
 * **Fan-in weight initialization**
-* **Serializable network**
+* **CBLAS support for fast matrix multiplication**
+* **Serializable networks**
 
 <hr>
 
 ## Usage
 Since Cranium is header-only, simply copy the ```src``` directory into your project, and ```#include "src/cranium.h"``` to begin using it. 
 
-Its only compiler dependency is from the ```<math.h>``` header, so compile with ```-lm```.
+Its only required compiler dependency is from the ```<math.h>``` header, so compile with ```-lm```.
+
+If you are using CBLAS, you will also need to compile with ```-lcblas``` and include, via ```-I```, the path to wherever your particular machine's BLAS implementation is. Common ones include [OpenBLAS](http://www.openblas.net/) and [ATLAS](http://math-atlas.sourceforge.net/).
 
 It has been tested to work perfectly fine with any level of gcc optimization, so feel free to use them. 
 
@@ -62,14 +65,14 @@ The training classes should be in matrix form, where the ith row corresponds to
     0 otherwise. Each example may only be of 1 class.
 */
 
-// create training data and target values
+// create training data and target values (data collection not shown)
 int rows, features, classes;
 float** training;
 float** classes;
 
-// create matrices to hold the data
-Matrix* trainingData = createMatrix(rows, features, training);
-Matrix* trainingClasses = createMatrix(rows, classes, classes);
+// create datasets to hold the data
+DataSet* trainingData = createDataSet(rows, features, training);
+DataSet* trainingClasses = createDataSet(rows, classes, classes);
 
 // create network with 2 input neurons, 1 hidden layer with sigmoid
 // activation function and 5 neurons, and 2 output neurons with softmax 
@@ -108,11 +111,12 @@ saveNetwork(net, "network");
 
 // free network and data
 destroyNetwork(net);
-destroyMatrix(trainingData);
-destroyMatrix(trainingClasses);
+destroyDataSet(trainingData);
+destroyDataSet(trainingClasses);
 
 // load previous network from file
 Network* previousNet = readNetwork("network");
+destroyNetwork(previousNet);
 ```
 
 <hr>
@@ -122,3 +126,11 @@ Network* previousNet = readNetwork("network");
 To run tests, look in the ```tests``` folder. 
 
 The ```Makefile``` has commands to run each batch of unit tests, or all of them at once.
+
+<hr>
+
+## Contributing
+
+Feel free to send a pull request if you want to add any features or if you find a bug.
+
+Check the issues tab for some potential things to do.
