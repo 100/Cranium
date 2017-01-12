@@ -3,29 +3,29 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="prism.css" data-noprefix>
     <style>
-    body{
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .nav li {
-        font-size: 20px;
-        padding-top: 5px;
-    }
-    h1 {
-        margin-top: 0px;
-        margin-bottom: 30px;
-        font-size: 350%;
-    }
-    h2 {
-        font-size: 300%;
-        padding-top: 80px;
-    }
-    h3 {
-        padding-top: 30px;
-    }
-    h4 {
-        font-size: 110%;
-    }
+        body{
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .nav li {
+            font-size: 20px;
+            padding-top: 5px;
+        }
+        h1 {
+            margin-top: 0px;
+            margin-bottom: 30px;
+            font-size: 350%;
+        }
+        h2 {
+            font-size: 300%;
+            padding-top: 80px;
+        }
+        h3 {
+            padding-top: 30px;
+        }
+        h4 {
+            font-size: 110%;
+        }
     </style>
 </head>
 <body>
@@ -34,6 +34,7 @@
         <div class="row">
             <div class="col-xs-12">
                 <img src="image.png"></img><br>
+                <h2 style="padding-top: 0px;"><a href="https://github.com/100/Cranium">&#128279; GitHub</a></h2>
                 <br><br>
                 <h1>Documentation</h1>
                 <div class="nav"><ul>
@@ -62,6 +63,7 @@
                             <li><a href="#destroyNetwork">destroyNetwork</a></li>
                             <li><a href="#optimize">optimize</a></li>
                             <li><a href="#forwardPass">forwardPass</a></li>
+                            <li><a href="#forwardPassDataSet">forwardPassDataSet</a></li>
                             <li><a href="#getOutput">getOuput</a></li>
                             <li><a href="#predict">predict</a></li>
                             <li><a href="#accuracy">accuracy</a></li>
@@ -80,7 +82,7 @@
 
                 <hr>
 
-                <h3 id="matrix">DataSet</h3>
+                <h3 id="dataset">DataSet</h3>
                 <h4>Structure to hold user training data and keep track of dimensions</h4>
                 <pre><code class="language-c">
 typedef struct DataSet_ {
@@ -473,9 +475,25 @@ void optimize(ParameterSet params);
                 </ul>
 
                 <h3 id="forwardPass">forwardPass</h3>
-                <h4>Passes input through a network, storing output in the network's last layer</h4>
+                <h4>Passes matrix input through a network, storing output in the network's last layer</h4>
                 <pre><code class="language-c">
 void forwardPass(Network* network, Matrix* input);
+                </code></pre>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>network</b>
+                        <br>
+                        <p>The network to use</p>
+                    </li>
+                    <li class="list-group-item"><b>input</b>
+                        <br>
+                        <p>The data to pass through the network</p>
+                    </li>
+                </ul>
+
+                <h3 id="forwardPassDataSet">forwardPassDataSet</h3>
+                <h4>Passes dataset input through a network, storing output in the network's last layer</h4>
+                <pre><code class="language-c">
+void forwardPassDataSet(Network* network, DataSet* input);
                 </code></pre>
                 <ul class="list-group">
                     <li class="list-group-item"><b>network</b>
