@@ -11,9 +11,9 @@
 
 #### It supports fully-connected networks of arbitrary depth and structure, and should be reasonably fast as it uses a matrix-based approach to calculations. It is particularly suitable for low-resource machines or environments in which additional dependencies cannot be installed.
 
-#### In order to maintain portability, BLAS implementations were not used. Feel free to change the ```multiply``` function in ```matrix.h``` to utilize faster methods. Generally, all matrix operations are done through these functions, so it is easy to modify them without changing the rest of the codebase.
+#### Cranium supports CBLAS integration. Simply uncomment line 7 in ```matrix.h``` to enable the BLAS ```sgemm``` function for fast matrix multiplication.
 
-#### Check out the detailed documentation [here](https://100.github.io/Cranium/).
+#### Check out the detailed documentation [here](https://100.github.io/Cranium/) for information on individual structures and functions.
 
 <hr>
 
@@ -35,14 +35,17 @@
 * **Learning rate annealing**
 * **Simple momentum**
 * **Fan-in weight initialization**
-* **Serializable network**
+* **CBLAS support for fast matrix multiplication**
+* **Serializable networks**
 
 <hr>
 
 ## Usage
 Since Cranium is header-only, simply copy the ```src``` directory into your project, and ```#include "src/cranium.h"``` to begin using it. 
 
-Its only compiler dependency is from the ```<math.h>``` header, so compile with ```-lm```.
+Its only required compiler dependency is from the ```<math.h>``` header, so compile with ```-lm```.
+
+If you are using CBLAS, you will also need to compile with ```-lcblas``` and include, via ```-I```, the path to wherever your particular machine's BLAS implementation is. Common ones include [OpenBLAS](http://www.openblas.net/) and [ATLAS](http://math-atlas.sourceforge.net/).
 
 It has been tested to work perfectly fine with any level of gcc optimization, so feel free to use them. 
 

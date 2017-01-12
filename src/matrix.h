@@ -3,6 +3,12 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+/* Uncomment the below line to use CBLAS */
+// #define CRANIUM_USE_CBLAS
+#ifdef CRANIUM_USE_CBLAS
+#include <cblas.h>
+#endif
+
 // represents user training data
 typedef struct DataSet_ {
     size_t rows;
@@ -289,6 +295,12 @@ Matrix* multiply(Matrix* A, Matrix* B){
     assert(A->cols == B->rows);
     float* data = (float*)malloc(sizeof(float) * A->rows * B->cols);
     Matrix* result = createMatrix(A->rows, B->cols, data);
+#ifdef CRANIUM_USE_CBLAS
+    zeroMatrix(result);
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, A->rows, B->cols
+    , A->cols, 1, A->data, A->cols, B->data, B->cols, 1, result->data, result->cols);
+    return result;
+#endif
     int i, j;
     for (i = 0; i < A->rows; i++){
         for (j = 0; j < B->cols; j++){
@@ -304,6 +316,12 @@ Matrix* multiply(Matrix* A, Matrix* B){
 }
 
 void multiplyInto(Matrix* A, Matrix* B, Matrix* into){
+#ifdef CRANIUM_USE_CBLAS
+    zeroMatrix(into);
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, A->rows, B->cols
+    , A->cols, 1, A->data, A->cols, B->data, B->cols, 1, into->data, into->cols);
+    return;
+#endif
     assert(A->cols == B->rows);
     assert(A->rows == into->rows && B->cols == into->cols);
     int i, j;
