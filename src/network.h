@@ -200,7 +200,7 @@ int* predict(Network* network){
 
 float accuracy(Network* network, DataSet* data, DataSet* classes){
     assert(data->rows == classes->rows);
-    assert(data->cols == network->layers[network->numLayers - 1]->size);
+    assert(classes->cols == network->layers[network->numLayers - 1]->size);
     forwardPassDataSet(network, data);
     int* predictions = predict(network);
     float numCorrect = 0;
