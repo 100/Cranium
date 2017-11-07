@@ -84,6 +84,26 @@ int main(){
         }
     }
 
+	//test mean, max, min by row
+	Matrix *matrixMeanRow = meanByRow(A);  
+	Matrix *matrixMaxRow = maxByRow(A);  
+	Matrix *matrixMinRow = minByRow(A);  
+	for (i = 0; i < 3; i++){
+    	assert(getMatrix(A,i,1) == getMatrix(matrixMeanRow,i,0));
+ 		assert(getMatrix(A,i,2) == getMatrix(matrixMaxRow,i,0));
+		assert(getMatrix(A,i,0) == getMatrix(matrixMinRow,i,0));
+	}
+
+	//test mean, max, min by col
+	Matrix *matrixMeanCol = meanByCol(A);  
+	Matrix *matrixMaxCol = maxByCol(A);  
+	Matrix *matrixMinCol = minByCol(A);  
+	for (j = 0; j < 3; j++){
+    	assert(getMatrix(A,1,j) == getMatrix(matrixMeanCol,0,j));
+ 		assert(getMatrix(A,2,j) == getMatrix(matrixMaxCol,0,j));
+		assert(getMatrix(A,0,j) == getMatrix(matrixMinCol,0,j));
+	}
+	
     // test destroy
     destroyMatrix(A);
     destroyMatrix(B);

@@ -9,6 +9,9 @@
 #include <cblas.h>
 #endif
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
 // represents user-supplied training data
 typedef struct DataSet_ {
     size_t rows;
@@ -91,6 +94,24 @@ static Matrix* hadamard(Matrix* A, Matrix* B);
 
 // places values of hadamard product of $A and $B into $into
 static void hadamardInto(Matrix* A, Matrix* B, Matrix* into);
+
+// returns a Matrix with the mean by row of $A
+static Matrix* meanByRow(Matrix* A);
+
+// returns a Matrix with the mean by collumn of $A
+static Matrix* meanByCol(Matrix* A);
+
+// returns a Matrix with the max element by row of $A
+static Matrix* maxByRow(Matrix* A);
+
+// returns a Matrix with the max element by collumn of $A
+static Matrix* maxByCol(Matrix* A);
+
+// returns a Matrix with the min element by row of $A
+static Matrix* minByRow(Matrix* A);
+
+// returns a Matrix with the min element by collumn of $A
+static Matrix* minByCol(Matrix* A);
 
 // returns a shallow copy of input matrix
 static Matrix* copy(Matrix* orig);
@@ -365,6 +386,90 @@ Matrix* copy(Matrix* orig){
     float* data = (float*)malloc(sizeof(float) * orig->rows * orig->cols);
     memcpy(data, orig->data, sizeof(float) * orig->cols * orig->rows);
     return createMatrix(orig->rows, orig->cols, data);
+}
+
+Matrix* meanByRow(Matrix* A){
+    float* data = (float*)malloc(sizeof(float) * A->rows);
+    Matrix* result = createMatrix(A->rows, 1, data);
+    int i, j;
+    for (i = 0; i < A->rows; i++){
+		float sum = 0.0;
+        for (j = 0; j < A->cols; j++){
+			sum += getMatrix(A, i, j);
+        }
+        setMatrix(result, i, 0, sum/(float)A->cols);
+    }
+    return result;
+}
+
+Matrix* meanByCol(Matrix* A){
+    float* data = (float*)malloc(sizeof(float) * A->cols);
+    Matrix* result = createMatrix(1, A->cols, data);
+    int i, j;
+    for (j = 0; j < A->cols; j++){
+		float sum = 0.0;
+        for (i = 0; i < A->rows; i++){
+			sum += getMatrix(A, i, j);
+        }
+        setMatrix(result, 0, j, sum/(float)A->rows);
+    }
+    return result;
+}
+
+Matrix* maxByRow(Matrix* A){
+    float* data = (float*)malloc(sizeof(float) * A->rows);
+    Matrix* result = createMatrix(A->rows, 1, data);
+    int i, j;
+    for (i = 0; i < A->rows; i++){
+		float max = FLT_MIN;
+        for (j = 0; j < A->cols; j++){
+            max = MAX(getMatrix(A, i, j), max);
+        }
+		setMatrix(result, i, 0, max);
+    }
+    return result;
+}
+
+Matrix* maxByCol(Matrix* A){
+    float* data = (float*)malloc(sizeof(float) * A->cols);
+    Matrix* result = createMatrix(1, A->cols, data);
+    int i, j;
+    for (j = 0; j < A->cols; j++){
+		float max = FLT_MIN;
+        for (i = 0; i < A->rows; i++){
+            max = MAX(getMatrix(A, i, j), max);
+        }
+		setMatrix(result, 0, j, max);
+    }
+    return result;
+}
+
+Matrix* minByRow(Matrix* A){
+ 	float* data = (float*)malloc(sizeof(float) * A->rows);
+    Matrix* result = createMatrix(A->rows, 1, data);
+    int i, j;
+    for (i = 0; i < A->rows; i++){
+		float min = FLT_MAX;
+        for (j = 0; j < A->cols; j++){
+            min = MIN(getMatrix(A, i, j), min);
+        }
+		setMatrix(result, i, 0, min);
+    }
+    return result;
+}
+
+Matrix* minByCol(Matrix* A){
+    float* data = (float*)malloc(sizeof(float) * A->cols);
+    Matrix* result = createMatrix(1, A->cols, data);
+    int i, j;
+    for (j = 0; j < A->cols; j++){
+		float min = FLT_MAX;
+        for (i = 0; i < A->rows; i++){
+            min = MIN(getMatrix(A, i, j), min);
+        }
+		setMatrix(result, 0, j, min);
+    }
+    return result;
 }
 
 int equals(Matrix* A, Matrix* B){
