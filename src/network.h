@@ -42,7 +42,7 @@ static float crossEntropyLoss(Network* network, Matrix* prediction, DataSet* act
 static float meanSquaredError(Network* network, Matrix* prediction, DataSet* actual, float regularizationStrength);
 
 // return matrix of network output
-static Matrix* getOuput(Network* network);
+static Matrix* getOutput(Network* network);
 
 // returns indices corresponding to highest-probability classes for each
 // example previously inputted
@@ -178,7 +178,7 @@ float meanSquaredError(Network* network, Matrix* prediction, DataSet* actual, fl
     return ((0.5 / actual->rows) * total_err) + (regularizationStrength * .5 * reg_err);
 }
 
-Matrix* getOuput(Network* network){
+Matrix* getOutput(Network* network){
     return network->layers[network->numLayers - 1]->input;
 }
 
