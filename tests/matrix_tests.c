@@ -103,7 +103,7 @@ int main(){
  		assert(getMatrix(A,2,j) == getMatrix(matrixMaxCol,0,j));
 		assert(getMatrix(A,0,j) == getMatrix(matrixMinCol,0,j));
 	}
-	
+
     // test destroy
     destroyMatrix(A);
     destroyMatrix(B);

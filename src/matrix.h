@@ -113,6 +113,12 @@ static Matrix* minByRow(Matrix* A);
 // returns a Matrix with the min element by collumn of $A
 static Matrix* minByCol(Matrix* A);
 
+// returns a normalized Matrix per row of $A by a $min_bound and a $max_bound
+static Matrix* normalizeByRow(Matrix* A, int min_bound, int max_bound);
+
+// returns a normalized Matrix per col of $A by a $min_bound and a $max_bound
+static Matrix* normalizeByCol(Matrix* A, int min_bound, int max_bound);
+
 // returns a shallow copy of input matrix
 static Matrix* copy(Matrix* orig);
 
@@ -468,6 +474,36 @@ Matrix* minByCol(Matrix* A){
             min = MIN(getMatrix(A, i, j), min);
         }
 		setMatrix(result, 0, j, min);
+    }
+    return result;
+}
+
+Matrix* normalizeByRow(Matrix* A, int min_bound, int max_bound){
+ 	float* data = (float*)malloc(sizeof(float) * A->rows * A->cols);
+    Matrix* result = createMatrix(A->rows, A->cols, data);
+    int i, j;
+    for (i = 0; i < A->rows; i++){
+		float max = getMatrix(maxByRow(A),i,0);
+		float min = getMatrix(minByRow(A),i,0);
+        for (j = 0; j < A->cols; j++){
+			float normalized_value = (max_bound - min_bound)*(getMatrix(A,i,j)-min)/(max-min) + min_bound;
+			setMatrix(result, i, j, normalized_value);
+        }
+    }
+    return result;
+}
+
+Matrix* normalizeByCol(Matrix* A, int min_bound, int max_bound){
+    float* data = (float*)malloc(sizeof(float) * A->rows * A->cols);
+    Matrix* result = createMatrix(A->rows, A->cols, data);
+    int i, j;
+	for (j = 0; j < A->cols; j++){
+		float max = getMatrix(maxByCol(A),0,j);
+		float min = getMatrix(minByCol(A),0,j);
+        for (i = 0; i < A->rows; i++){
+			float normalized_value = (max_bound - min_bound)*(getMatrix(A,i,j)-min)/(max-min) + min_bound;
+			setMatrix(result, i, j, normalized_value);
+        }
     }
     return result;
 }
