@@ -86,7 +86,7 @@ static Matrix* multiply(Matrix* A, Matrix* B);
 // multiplies $A and $B (ordering: AB) and places values into $into
 static void multiplyInto(Matrix* A, Matrix* B, Matrix* into);
 
-// element-wise multiplcation
+// element-wise multiplication
 static Matrix* hadamard(Matrix* A, Matrix* B);
 
 // places values of hadamard product of $A and $B into $into
